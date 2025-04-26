@@ -66,10 +66,15 @@ const CreateConcertForm = ({ onCreated }) => {
     e.preventDefault();
     if (!eventContract || !address) return alert("Connect wallet first.");
     if (!image) return alert("Please upload an image.");
+    await eventContract.registerAsMusician();
     try {
       setLoading(true);
       const metadataURI = await uploadToPinata();
       const timestamp = Math.floor(new Date(form.date).getTime() / 1000);
+
+      console.log("eventContract:", eventContract);
+      console.log("address:", address);
+
 
       const tx = await eventContract.createEvent(
         metadataURI,

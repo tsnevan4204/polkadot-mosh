@@ -3,6 +3,7 @@ import { ethers } from "ethers";
 import Ticket from "../abis/Ticket.json";
 import EventManager from "../abis/EventManager.json";
 import Marketplace from "../abis/Marketplace.json";
+import { toast } from "react-hot-toast";
 
 const Web3Context = createContext();
 
@@ -14,6 +15,7 @@ export const Web3Provider = ({ children }) => {
   const [eventContract, setEventContract] = useState(null);
   const [marketplaceContract, setMarketplaceContract] = useState(null);
   const [network, setNetwork] = useState(null);
+  const [role, setRole] = useState(null);
 
   const connectWallet = async () => {
     if (!window.ethereum) {
@@ -39,6 +41,13 @@ export const Web3Provider = ({ children }) => {
     setTicketContract(_ticket);
     setEventContract(_event);
     setMarketplaceContract(_marketplace);
+
+    const savedRole = localStorage.getItem(`mosh-role-${_address}`);
+    if (savedRole) {
+      setRole(savedRole);
+    } else {
+      promptRoleSelection(_address);
+    }
   };
 
   const disconnectWallet = () => {
@@ -49,8 +58,26 @@ export const Web3Provider = ({ children }) => {
     setEventContract(null);
     setMarketplaceContract(null);
     setNetwork(null);
+    setRole(null);
   };
-  
+
+  const promptRoleSelection = (userAddress) => {
+    toast((t) => (
+      <span>
+        🎭 Pick your role:
+        <div style={{ marginTop: "8px" }}>
+          <button onClick={() => selectRole('fan', userAddress, t.id)}>🎟 Fan</button>
+          <button onClick={() => selectRole('musician', userAddress, t.id)}>🎤 Musician</button>
+        </div>
+      </span>
+    ), { duration: Infinity });
+  };
+
+  const selectRole = (chosenRole, userAddress, toastId) => {
+    setRole(chosenRole);
+    localStorage.setItem(`mosh-role-${userAddress}`, chosenRole);
+    toast.dismiss(toastId);
+  };
 
   useEffect(() => {
     if (window.ethereum && window.ethereum.selectedAddress) {
@@ -71,6 +98,7 @@ export const Web3Provider = ({ children }) => {
         eventContract,
         marketplaceContract,
         isConnected: !!signer,
+        role,
       }}
     >
       {children}

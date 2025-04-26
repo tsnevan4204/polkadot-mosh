@@ -1,9 +1,12 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { useWeb3 } from "../contexts/Web3Context";
 import WalletButton from "./WalletButton";
 import "./Navbar.css";
 
 const Navbar = () => {
+  const { role } = useWeb3();
+
   return (
     <div className="navbar-container">
       <div className="navbar-top">
@@ -12,15 +15,17 @@ const Navbar = () => {
       </div>
 
       <nav className="navbar-links">
-        <Link to="/" className="nav-link">
-          Browse Events
-        </Link>
-        <Link to="/manage-tickets" className="nav-link">
-          Manage Tickets
-        </Link>
-        <Link to="/manage-concerts" className="nav-link">
-          Manage Concerts
-        </Link>
+        {role && (
+          <>
+            <Link to="/" className="nav-link">Browse Events</Link>
+            {role === "fan" && (
+              <Link to="/manage-tickets" className="nav-link">Manage Tickets</Link>
+            )}
+            {role === "musician" && (
+              <Link to="/manage-concerts" className="nav-link">Manage Concerts</Link>
+            )}
+          </>
+        )}
       </nav>
     </div>
   );

@@ -7,10 +7,13 @@ import ManageConcerts from "./pages/ManageConcerts";
 import ManageTickets from "./pages/ManageTickets";
 import RefundTrackerPage from "./pages/RefundTrackerPage";
 import MarketplacePage from "./pages/MarketplaceView";
+import { Toaster } from 'react-hot-toast';
+
 
 const App = () => {
   return (
     <Web3Provider>
+      <Toaster />
       <Router>
         <Navbar />
         <Routes>

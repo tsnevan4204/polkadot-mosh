@@ -9,6 +9,9 @@ contract EventManager is Ownable, IEventManager {
     Ticket public ticketNFT;
     uint256 public nextEventId;
 
+    enum Role { None, Fan, Musician }
+    mapping(address => Role) public roles;
+
     struct EventData {
         uint256 id;
         address organizer;
@@ -35,6 +38,7 @@ contract EventManager is Ownable, IEventManager {
     error RefundFailed();
     error NotAllowedToBuyOwnTicket();
     error ForwardFailed();
+    error AlreadyRegistered();
 
     // 📢 Events
     event EventCreated(uint256 indexed eventId, address indexed organizer);
@@ -43,11 +47,26 @@ contract EventManager is Ownable, IEventManager {
     event TicketPriceUpdated(uint256 indexed eventId, uint256 newPrice);
     event EventWasCancelled(uint256 indexed eventId);
     event RefundIssued(address indexed buyer, uint256 amount);
+    event Registered(address indexed user, Role role);
 
     constructor(address _ticketNFT) Ownable(msg.sender) {
         ticketNFT = Ticket(_ticketNFT);
     }
 
+    // 🚀 Role registration (still useful for frontend filtering)
+    function registerAsFan() external {
+        if (roles[msg.sender] != Role.None) revert AlreadyRegistered();
+        roles[msg.sender] = Role.Fan;
+        emit Registered(msg.sender, Role.Fan);
+    }
+
+    function registerAsMusician() external {
+        if (roles[msg.sender] != Role.None) revert AlreadyRegistered();
+        roles[msg.sender] = Role.Musician;
+        emit Registered(msg.sender, Role.Musician);
+    }
+
+    // 🛠 Event creation (no role check now)
     function createEvent(
         string memory metadataURI,
         uint256 ticketPrice,
@@ -71,6 +90,7 @@ contract EventManager is Ownable, IEventManager {
         emit EventCreated(eventId, msg.sender);
     }
 
+    // 🛒 Ticket purchase (no role check now)
     function buyTicket(uint256 eventId) external payable override {
         EventData storage evt = events[eventId];
 
@@ -90,7 +110,6 @@ contract EventManager is Ownable, IEventManager {
         payments[eventId][msg.sender] += msg.value;
         eventBuyers[eventId].push(msg.sender);
 
-        // 💸 Immediately forward payment to organizer
         (bool sent, ) = payable(evt.organizer).call{value: msg.value}("");
         if (!sent) revert ForwardFailed();
     }
@@ -129,13 +148,11 @@ contract EventManager is Ownable, IEventManager {
         uint256 expectedRefund = totalReceived[eventId];
         if (msg.value != expectedRefund) revert IncorrectPayment();
 
-        // First, issue refunds
         for (uint256 i = 0; i < eventBuyers[eventId].length; i++) {
             address buyer = eventBuyers[eventId][i];
-            if (buyer == address(this)) continue; // 🔐 Skip contract itself
+            if (buyer == address(this)) continue;
 
             uint256 refundAmount = payments[eventId][buyer];
-
             if (refundAmount > 0) {
                 payments[eventId][buyer] = 0;
                 (bool sent, ) = payable(buyer).call{value: refundAmount}("");
@@ -144,7 +161,6 @@ contract EventManager is Ownable, IEventManager {
             }
         }
 
-        // Then mark the event as cancelled
         evt.cancelled = true;
         emit EventWasCancelled(eventId);
     }

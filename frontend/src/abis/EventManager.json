@@ -1,5 +1,5 @@
 {
-  "address": "0x5E596CE9c851607ECcE38ECE9B47F22Ce7A62f7e",
+  "address": "0x6b485ccaC1310d550bf46c05f2628Bce43AD3fd5",
   "abi": [
     {
       "inputs": [
@@ -15,6 +15,11 @@
     {
       "inputs": [],
       "name": "AlreadyCancelled",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "AlreadyRegistered",
       "type": "error"
     },
     {
@@ -166,6 +171,25 @@
         }
       ],
       "name": "RefundIssued",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "enum EventManager.Role",
+          "name": "role",
+          "type": "uint8"
+        }
+      ],
+      "name": "Registered",
       "type": "event"
     },
     {
@@ -415,9 +439,42 @@
     },
     {
       "inputs": [],
+      "name": "registerAsFan",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "registerAsMusician",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
       "name": "renounceOwnership",
       "outputs": [],
       "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "roles",
+      "outputs": [
+        {
+          "internalType": "enum EventManager.Role",
+          "name": "",
+          "type": "uint8"
+        }
+      ],
+      "stateMutability": "view",
       "type": "function"
     },
     {
