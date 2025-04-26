@@ -1,0 +1,81 @@
+body {
+    background-color: #0f0f0f;
+    font-family: "Share Tech Mono", monospace;
+    color: #d1f2ff;
+}
+
+.browse-events-container {
+    padding: 2rem;
+    text-align: center;
+}
+
+.neon-title {
+    font-size: 2.5rem;
+    color: #00ffe7;
+    text-shadow: 0 0 6px #00ffe7, 0 0 12px #00ffe7, 0 0 20px #00ffe7;
+    margin-bottom: 2rem;
+}
+
+.glow-text {
+    color: #ff0090;
+    text-shadow: 0 0 6px #ff0090, 0 0 10px #ff0090;
+}
+
+.event-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1.5rem;
+    justify-content: center;
+}
+
+.event-card {
+    border: 2px solid #ff0090;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 0 12px #ff0090;
+    transition: transform 0.2s;
+}
+
+.event-card:hover {
+    transform: scale(1.03);
+    box-shadow: 0 0 16px #ff00c8;
+}
+
+.event-card h2 {
+    color: #ffffff;
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.metadata-uri {
+    font-size: 0.8rem;
+    color: #999;
+    word-break: break-word;
+    margin-top: 0.5rem;
+}
+
+.buy-button {
+    margin-top: 1rem;
+    padding: 0.6rem 1.2rem;
+    font-weight: bold;
+    background-color: #00ffe7;
+    color: #000;
+    border: none;
+    border-radius: 6px;
+    box-shadow: 0 0 8px #00ffe7;
+    cursor: pointer;
+    transition: background 0.3s, box-shadow 0.3s;
+}
+
+.buy-button:hover {
+    background-color: #00ffcc;
+    box-shadow: 0 0 12px #00ffe7, 0 0 24px #00ffe7;
+}
+
+.buy-button:disabled {
+    background-color: #555;
+    color: #aaa;
+    cursor: not-allowed;
+    box-shadow: none;
+}

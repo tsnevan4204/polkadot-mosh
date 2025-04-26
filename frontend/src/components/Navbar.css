@@ -1,0 +1,41 @@
+.navbar-container {
+    padding: 1rem 2rem;
+    background-color: #0d0d0d;
+    border-bottom: 2px solid #ff00c8;
+    box-shadow: 0 2px 16px rgba(255, 0, 200, 0.3);
+}
+
+.navbar-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.mosh-title {
+    font-size: 2rem;
+    font-family: "Share Tech Mono", monospace;
+    color: #ff00c8;
+    text-shadow: 0 0 8px #ff00c8, 0 0 16px #ff00c8;
+}
+
+.navbar-links {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-top: 1rem;
+}
+
+.nav-link {
+    font-family: "Share Tech Mono", monospace;
+    text-decoration: none;
+    color: #00ffe7;
+    font-weight: bold;
+    font-size: 1rem;
+    transition: all 0.2s ease-in-out;
+    text-shadow: 0 0 6px #00ffe7;
+}
+
+.nav-link:hover {
+    color: #00ffcc;
+    text-shadow: 0 0 12px #00ffe7, 0 0 20px #00ffe7;
+}

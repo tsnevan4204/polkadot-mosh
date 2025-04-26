@@ -1,0 +1,65 @@
+.marketplace-container {
+    padding: 2rem;
+    font-family: "Share Tech Mono", monospace;
+    background-color: #0b0b0b;
+    color: #d1f2ff;
+}
+
+.page-title {
+    font-size: 1.8rem;
+    text-align: center;
+    color: #ff00c8;
+    text-shadow: 0 0 10px #ff00c8;
+    margin-bottom: 2rem;
+}
+
+.ticket-section {
+    margin-bottom: 3rem;
+}
+
+.ticket-card {
+    display: flex;
+    gap: 1rem;
+    border: 2px solid #00ffe7;
+    border-radius: 12px;
+    padding: 1rem;
+    background: #1c1c1c;
+    box-shadow: 0 0 8px #00ffe7;
+}
+
+.ticket-image {
+    width: 160px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.ticket-details {
+    flex: 1;
+}
+
+.resale-listings {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.resale-item {
+    border: 1px solid #00ffe7;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    background: #111;
+    border-radius: 10px;
+    box-shadow: 0 0 5px #00ffe7;
+}
+
+.buy-button {
+    background-color: #00ffe7;
+    color: #000;
+    font-weight: bold;
+    padding: 0.4rem 0.8rem;
+    border-radius: 8px;
+    margin-top: 0.5rem;
+    border: none;
+    cursor: pointer;
+}

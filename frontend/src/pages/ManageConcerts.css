@@ -1,0 +1,60 @@
+.manage-concerts-container {
+    padding: 2rem;
+    background-color: #0b0b0b;
+    font-family: "Share Tech Mono", monospace;
+    color: #d1f2ff;
+}
+
+.page-title {
+    font-size: 2.2rem;
+    color: #ff00c8;
+    text-shadow: 0 0 10px #ff00c8;
+    margin-bottom: 1.5rem;
+}
+
+.form-section {
+    background: rgba(255, 255, 255, 0.02);
+    padding: 1.5rem;
+    border: 2px solid #00ffe7;
+    border-radius: 12px;
+    box-shadow: 0 0 12px #00ffe7;
+    margin-bottom: 2rem;
+}
+
+.fake-form {
+    padding: 1rem;
+    text-align: center;
+    font-style: italic;
+    background-color: #1a1a1a;
+    border-radius: 8px;
+    color: #aaa;
+}
+
+.neon-divider {
+    border: none;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #ff00c8, transparent);
+    margin: 2rem 0;
+}
+
+.glow-text {
+    color: #00ffe7;
+    text-shadow: 0 0 5px #00ffe7;
+    margin-bottom: 1rem;
+}
+
+.event-card-grid {
+    display: grid;
+    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+}
+
+.fake-card {
+    background-color: #1a1a1a;
+    border: 1px dashed #ff00c8;
+    border-radius: 10px;
+    padding: 1rem;
+    text-align: center;
+    color: #ff00c8;
+    font-style: italic;
+}
