@@ -37,7 +37,7 @@ const MarketplacePage = () => {
     fetchMarketplaceData();
   }, [eventContract, marketplaceContract, eventId]);
 
-  const formatEther = (value) => `${ethers.utils.formatEther(value)} ETH`;
+  const formatEther = (value) => `${ethers.utils.formatEther(value)} DOT`;
 
   return (
     <div className="marketplace-container">
@@ -52,19 +52,28 @@ const MarketplacePage = () => {
             {eventData?.cancelled ? (
               <p className="glow-text">❌ This event has been cancelled</p>
             ) : (
-              <div className="ticket-card">
-                <img
-                  src={metadata.image?.replace("ipfs://", "https://ipfs.io/ipfs/")}
-                  alt={metadata.name}
-                  className="ticket-image"
-                />
-                <div className="ticket-details">
-                  <h3>{metadata.name}</h3>
-                  <p>{metadata.description}</p>
-                  <p>🧾 {formatEther(eventData.ticketPrice)}</p>
-                  <p>🎫 {eventData.ticketsSold.toString()} / {eventData.maxTickets.toString()} sold</p>
-                </div>
-              </div>
+              (() => {
+                const location = metadata?.attributes?.find(attr => attr.trait_type === "Location")?.value || "Unknown Location";
+                const artist = metadata?.attributes?.find(attr => attr.trait_type === "Artist")?.value || "Unknown Artist";
+
+                return (
+                  <div className="ticket-card">
+                    <img
+                      src={metadata.image?.replace("ipfs://", "https://ipfs.io/ipfs/")}
+                      alt={metadata.name}
+                      className="ticket-image"
+                    />
+                    <div className="ticket-details">
+                      <h3>{metadata.name}</h3>
+                      <p>{metadata.description}</p>
+                      <p>📍 Location: {location}</p>
+                      <p>🎤 Artist: {artist}</p>
+                      <p>🧾 {formatEther(eventData.ticketPrice)}</p>
+                      <p>🎫 {eventData.ticketsSold.toString()} / {eventData.maxTickets.toString()} sold</p>
+                    </div>
+                  </div>
+                );
+              })()
             )}
           </div>
 

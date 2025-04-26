@@ -19,11 +19,14 @@ const ManageEventCard = ({ event, onCancel, onUpdate }) => {
     ? metadata.image.replace("ipfs://", "https://ipfs.io/ipfs/")
     : metadata?.image || "https://via.placeholder.com/400x200.png?text=Concert";
 
+  const location = metadata?.attributes?.find(attr => attr.trait_type === "Location")?.value || "Unknown Location"; // Added location
+  const artist = metadata?.attributes?.find(attr => attr.trait_type === "Artist")?.value || "Unknown Artist"; // Added artist
+
   const formattedDate = eventDate
     ? new Date(Number(eventDate) * 1000).toLocaleString()
     : "Date TBD";
 
-  const formattedPrice = price ? `${ethers.utils.formatEther(price)} ETH` : "—";
+  const formattedPrice = price ? `${ethers.utils.formatEther(price)} DOT` : "—";
   const sold = ticketsSold ? ticketsSold.toString() : "0";
   const supply = maxTickets ? maxTickets.toString() : "?";
 
@@ -34,6 +37,8 @@ const ManageEventCard = ({ event, onCancel, onUpdate }) => {
       <div className="event-details">
         <h3 className="event-title">{name}</h3>
         <p className="event-description">{description}</p>
+        <p className="event-meta">🎤 Artist: {artist}</p> {/* Display artist */}
+        <p className="event-meta">📍 Location: {location}</p> {/* Display location */}
 
         <div className="event-meta">
           <p>🎫 {sold} / {supply} sold</p>

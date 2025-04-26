@@ -15,6 +15,8 @@ const CreateConcertForm = ({ onCreated }) => {
     price: "",
     totalSupply: "",
     date: "",
+    location: "", // Added location field
+    artist: "" // Added artist field
   });
   const [image, setImage] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -45,7 +47,11 @@ const CreateConcertForm = ({ onCreated }) => {
       name: form.name,
       description: form.description,
       image: `ipfs://${imageHash}`,
-      attributes: [{ trait_type: "Event Date", value: form.date }],
+      attributes: [
+        { trait_type: "Event Date", value: form.date },
+        { trait_type: "Location", value: form.location }, // Added location to metadata
+        { trait_type: "Artist", value: form.artist } // Added artist to metadata
+      ],
     };
 
     const metadataRes = await axios.post(
@@ -66,7 +72,7 @@ const CreateConcertForm = ({ onCreated }) => {
     e.preventDefault();
     if (!eventContract || !address) return alert("Connect wallet first.");
     if (!image) return alert("Please upload an image.");
-    await eventContract.registerAsMusician();
+
     try {
       setLoading(true);
       const metadataURI = await uploadToPinata();
@@ -74,7 +80,6 @@ const CreateConcertForm = ({ onCreated }) => {
 
       console.log("eventContract:", eventContract);
       console.log("address:", address);
-
 
       const tx = await eventContract.createEvent(
         metadataURI,
@@ -85,7 +90,7 @@ const CreateConcertForm = ({ onCreated }) => {
       await tx.wait();
 
       alert("🎉 Concert created!");
-      setForm({ name: "", description: "", price: "", totalSupply: "", date: "" });
+      setForm({ name: "", description: "", price: "", totalSupply: "", date: "", location: "", artist: "" });
       setImage(null);
       if (onCreated) onCreated();
     } catch (err) {
@@ -101,6 +106,8 @@ const CreateConcertForm = ({ onCreated }) => {
       <input type="text" name="name" placeholder="Concert Name" value={form.name} onChange={updateField} required />
       <textarea name="description" placeholder="Concert Description" value={form.description} onChange={updateField} required />
       <input type="datetime-local" name="date" value={form.date} onChange={updateField} required />
+      <input type="text" name="location" placeholder="Location" value={form.location} onChange={updateField} required />
+      <input type="text" name="artist" placeholder="Artist" value={form.artist} onChange={updateField} required />
       <input type="number" name="price" placeholder="Ticket Price (ETH)" value={form.price} onChange={updateField} required />
       <input type="number" name="totalSupply" placeholder="Total Tickets" value={form.totalSupply} onChange={updateField} required />
       <input type="file" accept="image/*" onChange={handleImageChange} required />

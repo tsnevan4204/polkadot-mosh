@@ -65,7 +65,7 @@ const ManageTickets = () => {
 
   const listTicketForSale = async (tokenId) => {
     try {
-      const price = prompt("Enter resale price in ETH:");
+      const price = prompt("Enter resale price in DOT:");
       if (!price) return;
 
       const parsedPrice = ethers.utils.parseEther(price);
@@ -101,6 +101,8 @@ const ManageTickets = () => {
             const eventDate = eventData.eventDate
               ? new Date(Number(eventData.eventDate) * 1000).toLocaleString()
               : "Unknown Date";
+            const location = metadata?.attributes?.find(attr => attr.trait_type === "Location")?.value || "Unknown Location"; // Added location
+            const artist = metadata?.attributes?.find(attr => attr.trait_type === "Artist")?.value || "Unknown Artist"; // Added artist
 
             return (
               <div key={eventId} className="ticket-card">
@@ -108,6 +110,8 @@ const ManageTickets = () => {
                 <div className="ticket-details">
                   <h3>{metadata?.name || "Untitled Event"}</h3>
                   <p>{metadata?.description}</p>
+                  <p>📍 Location: {location}</p> {/* Display location */}
+                  <p>🎤 Artist: {artist}</p> {/* Display artist */}
                   <p>🆔 Event #{eventId}</p>
                   <p>🎟 {ticketIds.length} ticket(s)</p>
                   <p>🗓 {eventDate}</p>
@@ -117,7 +121,7 @@ const ManageTickets = () => {
                         <span className="ticket-id">🎟 #{tokenId}</span>
                         <input
                           type="number"
-                          placeholder="Price (ETH)"
+                          placeholder="Price (DOT)"
                           value={resalePrices[tokenId] || ""}
                           onChange={(e) =>
                             setResalePrices({ ...resalePrices, [tokenId]: e.target.value })
