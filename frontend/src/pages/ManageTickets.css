@@ -1,97 +1,100 @@
 .manage-tickets-container {
     padding: 2rem;
     font-family: "Share Tech Mono", monospace;
-    background-color: #0b0b0b;
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
     color: #d1f2ff;
     min-height: 100vh;
 }
 
 .page-title {
-    font-size: 2rem;
+    font-size: 2.5rem;
     color: #ff00c8;
-    text-shadow: 0 0 10px #ff00c8;
-    margin-bottom: 2rem;
+    text-shadow: 0 0 12px #ff00c8, 0 0 20px rgba(255, 0, 200, 0.5);
+    margin-bottom: 3rem;
     text-align: center;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0.5rem;
+    gap: 0.8rem;
+    font-weight: bold;
 }
 
 .glow-text {
     color: #00ffe7;
     text-shadow: 0 0 5px #00ffe7;
     text-align: center;
-    font-size: 1.2rem;
+    font-size: 1.3rem;
     margin: 2rem 0;
 }
 
 .ticket-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
     gap: 2rem;
     margin: 0 auto;
-    max-width: 1400px;
-    padding: 1.5rem;
-    border: 2px solid #ff00c8;
-    border-radius: 16px;
-    box-shadow: 0 0 15px rgba(255, 0, 200, 0.4);
-    background-color: rgba(0, 0, 0, 0.3);
+    max-width: 1600px;
+    padding: 2rem;
+    border: 1px solid rgba(255, 0, 200, 0.3);
+    border-radius: 20px;
+    box-shadow: 0 0 25px rgba(255, 0, 200, 0.2), 0 0 40px rgba(0, 255, 231, 0.1) inset;
+    background-color: rgba(10, 10, 10, 0.5);
+    backdrop-filter: blur(5px);
 }
 
 .ticket-card {
-    background: linear-gradient(145deg, #0b0b0b, #1c1c1c);
-    border: 2px solid #00ffe7;
-    border-radius: 12px;
-    box-shadow: 0 0 12px #00ffe7, 0 0 24px #00ffe7 inset;
-    overflow: hidden;
-    transition: transform 0.3s ease;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
+    border: 1px solid #00ffe7;
+    box-shadow: 0 0 10px rgba(0, 255, 231, 0.3), 0 0 15px rgba(0, 255, 231, 0.2) inset;
+    background: linear-gradient(145deg, #111, #222);
     position: relative;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .ticket-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 0 20px #00ffe7, 0 0 30px #00ffe7 inset;
+    transform: translateY(-6px) scale(1.02);
+    box-shadow: 0 8px 25px rgba(0, 255, 231, 0.4), 0 0 25px rgba(0, 255, 231, 0.3) inset;
 }
 
 .ticket-card.cancelled {
-    border: 2px solid #ff0000;
-    box-shadow: 0 0 12px #ff0000, 0 0 24px rgba(255, 0, 0, 0.3) inset;
+    border-color: #ff3355;
+    box-shadow: 0 0 10px rgba(255, 51, 85, 0.4), 0 0 15px rgba(255, 51, 85, 0.3) inset;
 }
 
 .ticket-card.cancelled:hover {
-    box-shadow: 0 0 20px #ff0000, 0 0 30px rgba(255, 0, 0, 0.3) inset;
+    box-shadow: 0 8px 25px rgba(255, 51, 85, 0.5), 0 0 25px rgba(255, 51, 85, 0.4) inset;
 }
 
 .ticket-image {
     width: 100%;
     height: 200px;
     object-fit: cover;
-    border-bottom: 1px solid #ff00c8;
+    border-bottom: 1px solid rgba(0, 255, 231, 0.5);
     box-shadow: 0 0 15px rgba(255, 0, 200, 0.4);
 }
 
 .ticket-content {
-    padding: 1rem;
+    padding: 1rem 1.2rem;
     display: flex;
     flex-direction: column;
     flex-grow: 1;
+    gap: 0.5rem;
 }
 
 .ticket-header {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 0.5rem;
+    display: none;
 }
 
-.ticket-id {
-    font-size: 1.2rem;
+.ticket-id-display {
+    font-size: 0.9rem;
+    color: #aaa;
+    text-align: center;
+    margin-bottom: 0.8rem;
     font-weight: bold;
-    color: #00ffe7;
-    text-shadow: 0 0 8px #00ffe7;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 3px 6px;
+    border-radius: 4px;
+    display: inline-block;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .event-details {
@@ -109,60 +112,67 @@
     text-align: center;
 }
 
-.event-artist, .event-date, .event-venue, .event-price {
-    font-size: 1rem;
-    margin: 0.6rem 0;
-    color: #d1f2ff;
-    display: flex;
-    align-items: center;
+.ticket-card .price-section {
+    margin-top: 0.5rem;
+    margin-bottom: 0.8rem;
+    font-size: 0.9rem;
+    color: #aaa;
 }
 
-.detail-label {
-    font-weight: bold;
-    color: #00ffe7;
-    margin-right: 0.5rem;
-    min-width: 60px;
+.ticket-card .price-section .price-text {
+    color: #ccc;
+    font-weight: normal;
 }
 
 .ticket-resale {
     margin-top: auto;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(0, 255, 231, 0.2);
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 0.8rem;
 }
 
 .price-input-container {
     position: relative;
-    margin-bottom: 0.5rem;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .price-input {
     width: 100%;
-    padding: 0.75rem;
-    font-size: 1.1rem;
-    border-radius: 8px;
-    border: 2px solid #ff00c8;
-    background: #0b0b0b;
+    padding: 0.8rem 1rem;
+    font-size: 1rem;
+    border-radius: 6px;
+    border: 1px solid #ff00c8;
+    background: rgba(10, 10, 10, 0.8);
     color: #fff;
     font-family: "Share Tech Mono", monospace;
-    box-shadow: 0 0 10px rgba(255, 0, 200, 0.4);
+    box-shadow: 0 0 8px rgba(255, 0, 200, 0.2) inset;
     transition: all 0.3s ease;
+    box-sizing: border-box; /* Crucial for staying in bounds */
+    appearance: textfield; /* Standard property */
+    -moz-appearance: textfield; /* Hide spinners for number input in Firefox */
+}
+
+.price-input::-webkit-outer-spin-button,
+.price-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.price-input::placeholder {
+    color: #888;
 }
 
 .price-input:focus {
     outline: none;
     border-color: #ff33d1;
-    box-shadow: 0 0 15px rgba(255, 0, 200, 0.7);
+    box-shadow: 0 0 12px rgba(255, 0, 200, 0.5) inset, 0 0 5px rgba(255, 0, 200, 0.3);
 }
 
 .dot-symbol {
-    position: absolute;
-    right: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #ff00c8;
-    font-weight: bold;
-    pointer-events: none;
+    display: none;
 }
 
 .list-button {
@@ -170,39 +180,46 @@
     color: white;
     font-family: "Share Tech Mono", monospace;
     font-weight: bold;
-    font-size: 1.1rem;
-    padding: 0.8rem;
+    font-size: 1rem;
+    padding: 0.7rem 1rem;
     border: none;
-    border-radius: 8px;
+    border-radius: 6px;
     cursor: pointer;
-    box-shadow: 0 0 10px #ff00c8;
-    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(255, 0, 200, 0.3);
+    transition: all 0.2s ease-out;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
+    width: 100%;
+    box-sizing: border-box;
 }
 
-.list-button:hover {
+.list-button:hover:not(:disabled) {
     background: linear-gradient(45deg, #ff33d1, #8f3dd1);
-    box-shadow: 0 0 16px #ff00c8;
+    box-shadow: 0 6px 15px rgba(255, 0, 200, 0.4);
     transform: translateY(-2px);
 }
 
-.list-button .icon {
-    font-size: 1.2rem;
+.list-button:disabled {
+    background: linear-gradient(45deg, #555, #333);
+    color: #888;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+    opacity: 0.6;
 }
 
-/* Animation for glow effects */
+.list-button .icon {
+    font-size: 1.1rem;
+}
+
 @keyframes glow {
-    0% {
-        box-shadow: 0 0 10px #00ffe7, 0 0 20px #00ffe7 inset;
+    0%, 100% {
+        box-shadow: 0 0 10px rgba(0, 255, 231, 0.3), 0 0 15px rgba(0, 255, 231, 0.2) inset;
     }
     50% {
-        box-shadow: 0 0 15px #00ffe7, 0 0 30px #00ffe7 inset;
-    }
-    100% {
-        box-shadow: 0 0 10px #00ffe7, 0 0 20px #00ffe7 inset;
+        box-shadow: 0 0 15px rgba(0, 255, 231, 0.4), 0 0 20px rgba(0, 255, 231, 0.3) inset;
     }
 }
 
@@ -211,7 +228,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-height: 300px;
+    min-height: 400px;
     text-align: center;
 }
 
@@ -227,8 +244,8 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.8);
-    backdrop-filter: blur(3px);
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(4px);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -240,7 +257,7 @@
 .ticket-listing-overlay p {
     margin-top: 0.8rem;
     color: #00ffe7;
-    font-size: 0.9rem;
+    font-size: 1rem;
     font-weight: bold;
     text-shadow: 0 0 5px #00ffe7;
 }

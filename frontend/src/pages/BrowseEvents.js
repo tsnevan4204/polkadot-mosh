@@ -8,7 +8,7 @@ import "./BrowseEvents.css";
 
 const BrowseEvents = () => {
   const { events, loading, refetch } = useEvents();
-  const { eventContract, address } = useWeb3();
+  const { eventContract, address, role } = useWeb3();
   const [txPending, setTxPending] = useState(false);
   const [isGuestUser, setIsGuestUser] = useState(true);
 
@@ -19,6 +19,7 @@ const BrowseEvents = () => {
 
   const buyTicket = async (eventId, price) => {
     if (!eventContract || !address) return alert("Connect wallet first!");
+    if (role !== 'fan') return alert("Only fans can purchase tickets!");
 
     try {
       setTxPending(true);
@@ -56,7 +57,7 @@ const BrowseEvents = () => {
               event={e}
               onBuy={buyTicket}
               showBuyButton={!txPending && e.ticketsSold < e.maxTickets}
-              isGuestUser={false}
+              isGuestUser={isGuestUser}
             />
           ))}
         </div>

@@ -7,7 +7,7 @@ import "./EventCard.css";
 
 const EventCard = ({ event, onBuy, showBuyButton = true, isGuestUser = false }) => {
   const navigate = useNavigate();
-  const { getArtistName, connectWallet } = useWeb3();
+  const { getArtistName, connectWallet, role } = useWeb3();
   const [artistName, setArtistName] = useState("Unknown Artist");
   const [isConnecting, setIsConnecting] = useState(false);
   const [isBuying, setIsBuying] = useState(false);
@@ -141,8 +141,8 @@ const EventCard = ({ event, onBuy, showBuyButton = true, isGuestUser = false }) 
         {/* Only show buttons if event is not cancelled */}
         {!cancelled ? (
           <>
-            {/* BUY BUTTON - Only shown for connected users, not for guests */}
-            {showBuyButton && !isGuestUser && (
+            {/* BUY BUTTON - Only shown for fans */}
+            {showBuyButton && !isGuestUser && role === 'fan' && (
               <button
                 className="buy-button"
                 onClick={handleBuyTicket}

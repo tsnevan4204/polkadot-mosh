@@ -9,7 +9,7 @@ import "./MarketplaceView.css";
 const MarketplacePage = () => {
   const { eventId } = useParams();
   const navigate = useNavigate();
-  const { marketplaceContract, eventContract } = useWeb3();
+  const { marketplaceContract, eventContract, role } = useWeb3();
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [buying, setBuying] = useState(false);
@@ -162,20 +162,22 @@ const MarketplacePage = () => {
                     👤 Seller: {shortenAddress(l.seller)}
                   </div>
                 </div>
-                <button
-                  className="buy-button marketplace-buy"
-                  onClick={() => buyTicket(l.tokenId, l.price)}
-                  disabled={buying}
-                >
-                  {buying && currentTokenId === l.tokenId ? (
-                    <span className="button-loading">
-                      <LoadingSpinner size="small" />
-                      <span>Buying...</span>
-                    </span>
-                  ) : (
-                    "🌀 Buy Ticket"
-                  )}
-                </button>
+                {role === 'fan' && (
+                  <button
+                    className="buy-button marketplace-buy"
+                    onClick={() => buyTicket(l.tokenId, l.price)}
+                    disabled={buying}
+                  >
+                    {buying && currentTokenId === l.tokenId ? (
+                      <span className="button-loading">
+                        <LoadingSpinner size="small" />
+                        <span>Buying...</span>
+                      </span>
+                    ) : (
+                      "🌀 Buy Ticket"
+                    )}
+                  </button>
+                )}
               </div>
             ))}
           </div>
