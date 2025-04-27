@@ -9,15 +9,14 @@ const PINATA_API_KEY = "3bf4164172fae7b68de3";
 const PINATA_SECRET = "32288745dd22dabdcc87653918e33841ccfcfbd45c43a89709f873aedcc7c9fe";
 
 const CreateConcertForm = ({ onCreated }) => {
-  const { eventContract, address, goldRequirement } = useWeb3();
+  const { eventContract, address, goldRequirement, artistName } = useWeb3();
   const [form, setForm] = useState({
     name: "",
     description: "",
     price: "",
     totalSupply: "",
     date: "",
-    location: "",
-    artist: ""
+    location: ""
   });
   const [image, setImage] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -51,7 +50,8 @@ const CreateConcertForm = ({ onCreated }) => {
       attributes: [
         { trait_type: "Event Date", value: form.date },
         { trait_type: "Location", value: form.location },
-        { trait_type: "Artist", value: form.artist }
+        { trait_type: "Artist Address", value: address },
+        { trait_type: "Artist Name", value: artistName || "Unknown Artist" }
       ],
     };
 
@@ -71,15 +71,24 @@ const CreateConcertForm = ({ onCreated }) => {
 
   const createConcert = async (e) => {
     e.preventDefault();
-    if (!eventContract || !address) return toast.error("❌ Connect your wallet first!");
-    if (!image) return toast.error("❌ Please upload an image!");
-    if (!form.price) return toast.error("❌ Enter a valid ticket price.");
+    if (!eventContract || !address) return toast.error("Connect your wallet first!");
+    if (!image) return toast.error("Please upload an image!");
+    if (!form.price) return toast.error("Enter a valid ticket price.");
+    if (!artistName) return toast.error("Artist name is required. Please complete your profile setup.");
+
+    // Check if the event date is in the future
+    const eventDate = new Date(form.date);
+    const currentDate = new Date();
+    if (eventDate <= currentDate) {
+      return toast.error("Concert date must be in the future!");
+    }
 
     try {
       setLoading(true);
       const metadataURI = await uploadToPinata();
-      const eventDateTimestamp = Math.floor(new Date(form.date).getTime() / 1000);
+      const eventDateTimestamp = Math.floor(eventDate.getTime() / 1000);
 
+      // Always have a valid goldRequirement (default is already set in context)
       const tx = await eventContract.createEvent(
         metadataURI,
         ethers.utils.parseEther(form.price.toString()),
@@ -89,34 +98,111 @@ const CreateConcertForm = ({ onCreated }) => {
       );
       await tx.wait();
 
-      toast.success("🎉 Concert created!");
-      setForm({ name: "", description: "", price: "", totalSupply: "", date: "", location: "", artist: "" });
+      toast.success("Concert created!");
+      setForm({ name: "", description: "", price: "", totalSupply: "", date: "", location: "" });
       setImage(null);
       if (onCreated) onCreated();
     } catch (err) {
       console.error("Create failed:", err);
-      toast.error("❌ Failed to create concert.");
+      toast.error("Failed to create concert.");
     } finally {
       setLoading(false);
     }
   };
 
-  const isFormValid = form.name && form.description && form.price && form.totalSupply && form.date && form.location && form.artist && image && goldRequirement;
+  const isFormValid = form.name && form.description && form.price && form.totalSupply && form.date && form.location && image;
 
   return (
     <form onSubmit={createConcert} className="concert-form">
-      <input type="text" name="name" placeholder="Concert Name" value={form.name} onChange={updateField} required />
-      <textarea name="description" placeholder="Concert Description" value={form.description} onChange={updateField} required />
-      <input type="datetime-local" name="date" value={form.date} onChange={updateField} required />
-      <input type="text" name="location" placeholder="Location" value={form.location} onChange={updateField} required />
-      <input type="text" name="artist" placeholder="Artist" value={form.artist} onChange={updateField} required />
-      <input type="number" name="price" placeholder="Ticket Price (DOT)" value={form.price} onChange={updateField} required />
-      <input type="number" name="totalSupply" placeholder="Total Tickets" value={form.totalSupply} onChange={updateField} required />
-      <input type="file" accept="image/*" onChange={handleImageChange} required />
+      <div className="form-group">
+        <label htmlFor="name">Concert Name</label>
+        <input 
+          id="name" 
+          type="text" 
+          name="name" 
+          value={form.name} 
+          onChange={updateField} 
+          required 
+        />
+      </div>
+      
+      <div className="form-group">
+        <label htmlFor="description">Concert Description</label>
+        <textarea 
+          id="description" 
+          name="description" 
+          value={form.description} 
+          onChange={updateField} 
+          required 
+        />
+      </div>
+      
+      <div className="form-row">
+        <div className="form-group">
+          <label htmlFor="date">Event Date & Time</label>
+          <input 
+            id="date" 
+            type="datetime-local" 
+            name="date" 
+            value={form.date} 
+            onChange={updateField} 
+            required 
+          />
+        </div>
+        
+        <div className="form-group">
+          <label htmlFor="location">Location</label>
+          <input 
+            id="location" 
+            type="text" 
+            name="location" 
+            value={form.location} 
+            onChange={updateField} 
+            required 
+          />
+        </div>
+      </div>
+      
+      <div className="form-row">
+        <div className="form-group">
+          <label htmlFor="price">Ticket Price (DOT)</label>
+          <input 
+            id="price" 
+            type="number" 
+            name="price" 
+            value={form.price} 
+            onChange={updateField} 
+            required 
+          />
+        </div>
+        
+        <div className="form-group">
+          <label htmlFor="totalSupply">Total Tickets</label>
+          <input 
+            id="totalSupply" 
+            type="number" 
+            name="totalSupply" 
+            value={form.totalSupply} 
+            onChange={updateField} 
+            required 
+          />
+        </div>
+      </div>
+      
+      <div className="form-group">
+        <label htmlFor="concertImage">Concert Image</label>
+        <input 
+          id="concertImage" 
+          type="file" 
+          accept="image/*" 
+          onChange={handleImageChange} 
+          required 
+        />
+      </div>
       
       <button type="submit" disabled={loading || !isFormValid}>
         {loading ? (
-          <span className="spinner"></span> // 👈 Spinner appears during "Creating..."
+          <span className="spinner"></span>
         ) : (
           "🚀 Launch Concert"
         )}

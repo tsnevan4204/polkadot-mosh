@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
+import { toast } from "react-hot-toast";
 import { useWeb3 } from "../contexts/Web3Context";
 import { useEvents } from "../hooks/useEvents";
 import "./ManageConcerts.css";
-import CreateConcertForm from "../components/CreateConcertForm"; // Placeholder for the form component
+import CreateConcertForm from "../components/CreateConcertForm";
 import ManageEventCard from "../components/ManageEventCard";
 
 const ManageConcerts = () => {
@@ -28,11 +29,11 @@ const ManageConcerts = () => {
         const tx = await eventContract.cancelEvent(eventId, { value: expectedRefund });
         await tx.wait();
 
-        alert("🚫 Event cancelled and buyers refunded.");
+        toast.success("Event cancelled and buyers refunded.");
         refetch();
     } catch (err) {
         console.error("Cancel failed:", err);
-        alert("❌ Failed to cancel event.");
+        toast.error("Failed to cancel event.");
     }
   };
 
@@ -41,10 +42,11 @@ const ManageConcerts = () => {
     <div className="manage-concerts-container">
       <h1 className="page-title">🎛 Manage Your Concerts</h1>
 
-      {/* 🎤 Form Placeholder (future component) */}
       <div className="form-section">
-        <p className="glow-text">Create a new concert</p>
-        <CreateConcertForm onCreated={refetch} />
+        <h2 className="form-title">🎸 Create a New Concert</h2>
+        <div className="form-wrapper">
+          <CreateConcertForm onCreated={refetch} />
+        </div>
       </div>
 
       <hr className="neon-divider" />
@@ -56,7 +58,7 @@ const ManageConcerts = () => {
         <p className="glow-text">🫥 You haven't hosted any concerts yet.</p>
       ) : (
         <div className="event-card-grid">
-          {events.map((e, i) => (
+          {myEvents.map((e, i) => (
             <ManageEventCard
             key={i}
             event={e}

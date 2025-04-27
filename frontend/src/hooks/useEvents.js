@@ -3,7 +3,7 @@ import { useWeb3 } from "../contexts/Web3Context";
 import axios from "axios";
 
 export const useEvents = () => {
-  const { eventContract } = useWeb3();
+  const { eventContract, address } = useWeb3();
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -32,10 +32,37 @@ export const useEvents = () => {
       }
 
       const rawEvents = await Promise.all(promises);
+      
+      // For each user, get their loyalty tier for each artist
+      const loyaltyPromises = [];
+      if (address) {
+        for (const event of rawEvents) {
+          loyaltyPromises.push(eventContract.loyaltyTiers(address, event.organizer));
+          loyaltyPromises.push(eventContract.attendanceCount(address, event.organizer));
+        }
+      }
+      
+      const loyaltyResults = address ? await Promise.all(loyaltyPromises) : [];
 
       const eventsWithMeta = await Promise.all(
-        rawEvents.map(async (e) => {
+        rawEvents.map(async (e, index) => {
           const meta = await fetchMetadata(e.metadataURI);
+          
+          // Calculate loyalty information if user is connected
+          let isGoldHolder = false;
+          let loyaltyProgress = 0;
+          
+          if (address) {
+            const loyaltyTier = loyaltyResults[index * 2]; // Even indices are loyalty tiers
+            const attended = loyaltyResults[index * 2 + 1]; // Odd indices are attendance counts
+            const goldRequirement = e.goldRequirement.toNumber();
+            
+            isGoldHolder = loyaltyTier === 1; // Assuming 1 = Gold in the enum
+            loyaltyProgress = goldRequirement > 0 
+              ? Math.min(Math.floor((attended.toNumber() / goldRequirement) * 100), 100) 
+              : 0;
+          }
+          
           return {
             id: e.id.toNumber(),
             metadata: meta,
@@ -45,6 +72,10 @@ export const useEvents = () => {
             eventDate: e.eventDate,
             organizer: e.organizer,
             cancelled: e.cancelled,
+            goldRequirement: e.goldRequirement.toNumber(),
+            isGoldHolder,
+            loyaltyProgress,
+            attendedCount: address ? loyaltyResults[index * 2 + 1]?.toNumber() : 0
           };
         })
       );
@@ -58,7 +89,7 @@ export const useEvents = () => {
 
   useEffect(() => {
     fetchEvents();
-  }, [eventContract]);
+  }, [eventContract, address]);
 
   return { events, loading, refetch: fetchEvents };
 };

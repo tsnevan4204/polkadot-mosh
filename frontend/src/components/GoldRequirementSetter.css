@@ -2,21 +2,36 @@
 
 .gold-requirement-form {
     display: flex;
+    flex-direction: column;
     align-items: center;
     margin-left: 1rem;
+    background-color: rgba(0, 0, 0, 0.3);
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 0, 200, 0.3);
+}
+
+.artist-name {
+    color: #ff00c8;
+    font-weight: bold;
+    font-size: 0.8rem;
+    margin-bottom: 0.5rem;
+}
+
+.input-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 .gold-requirement-form input {
     background-color: #1c1c1e;
-    /* dark */
     border: 1px solid #444;
-    /* subtle border */
     border-radius: 8px;
     padding: 6px 10px;
     color: #fff;
     font-size: 14px;
     width: 80px;
-    margin-right: 8px;
     text-align: center;
 }
 
@@ -26,7 +41,6 @@
 
 .gold-requirement-form button {
     background: linear-gradient(135deg, #6e00ff, #bb00ff);
-    /* neon-ish purple */
     color: white;
     border: none;
     border-radius: 8px;

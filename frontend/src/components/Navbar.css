@@ -18,6 +18,16 @@
     text-shadow: 0 0 8px #ff00c8, 0 0 16px #ff00c8;
 }
 
+.logo-link {
+    text-decoration: none;
+    transition: transform 0.3s ease;
+    display: inline-block;
+}
+
+.logo-link:hover {
+    transform: scale(1.05);
+}
+
 .navbar-links {
     display: flex;
     justify-content: center;

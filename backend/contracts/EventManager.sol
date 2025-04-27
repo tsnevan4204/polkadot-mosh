@@ -116,12 +116,12 @@ contract EventManager is Ownable, IEventManager {
         if (msg.sender == address(this)) revert("Contract cannot buy its own ticket");
 
         // Loyalty gating
-        if (block.timestamp < evt.loyaltyStartTimestamp) {
+        if (block.timestamp < evt.loyaltyStartTimestamp && evt.goldRequirement > 0) {
             revert("Ticket sales not started yet");
         }
 
         LoyaltyTier fanTier = loyaltyTiers[msg.sender][evt.organizer];
-        if (fanTier != LoyaltyTier.Gold) {
+        if (fanTier != LoyaltyTier.Gold && evt.goldRequirement > 0) {
             if (block.timestamp < evt.publicStartTimestamp) {
                 revert("Public ticket sales not started yet");
             }

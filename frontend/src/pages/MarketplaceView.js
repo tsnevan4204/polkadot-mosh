@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { ethers } from "ethers";
+import { toast } from "react-hot-toast";
 import { useWeb3 } from "../contexts/Web3Context";
 import "./MarketplaceView.css";
 
@@ -52,11 +53,11 @@ const MarketplacePage = () => {
     try {
       const tx = await marketplaceContract.buyTicket(tokenId, { value: price });
       await tx.wait();
-      alert("🎟️ Ticket purchased!");
+      toast.success("Ticket purchased!");
       window.location.reload();
     } catch (err) {
       console.error("Buy failed:", err);
-      alert("❌ Failed to buy ticket.");
+      toast.error("Failed to buy ticket.");
     }
   };
 

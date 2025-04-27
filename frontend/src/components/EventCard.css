@@ -1,5 +1,5 @@
 .event-card {
-    width: 260px;
+    width: 280px;
     background: linear-gradient(145deg, #0b0b0b, #1c1c1c);
     border: 2px solid #00ffe7;
     border-radius: 12px;
@@ -17,12 +17,14 @@
 }
 
 .event-image {
-    width: 100%;
-    height: 140px;
+    width: 220px;
+    height: 220px;
     object-fit: cover;
     border-radius: 10px;
     margin-bottom: 0.8rem;
     border: 1px solid #ff00c8;
+    align-self: center;
+    box-shadow: 0 0 15px rgba(255, 0, 200, 0.4);
 }
 
 .event-details {
@@ -40,6 +42,20 @@
     color: #00ffe7;
     margin-bottom: 0.5rem;
     text-shadow: 0 0 4px #00ffe7;
+}
+
+.artist-name {
+    font-size: 1rem;
+    color: #ff00c8;
+    margin-bottom: 0.3rem;
+    font-weight: bold;
+    text-shadow: 0 0 5px #ff00c8;
+}
+
+.location-name, .date-name {
+    font-size: 0.8rem;
+    color: #aaa;
+    margin-bottom: 0.2rem;
 }
 
 .event-meta {
@@ -67,8 +83,12 @@
 }
 
 .progress-bar-container {
-    margin-top: 8px;
+    margin-top: 12px;
     width: 100%;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 8px;
+    border-radius: 8px;
+    border: 1px dashed rgba(255, 215, 0, 0.3);
 }
 
 .progress-bar {
@@ -76,20 +96,23 @@
     background-color: #333;
     border-radius: 8px;
     overflow: hidden;
-    height: 8px;
+    height: 10px;
     margin-top: 5px;
 }
 
 .progress-bar-fill {
-    height: 8px;
-    background: linear-gradient(90deg, #00c3ff, #0055ff);
+    height: 10px;
+    background: linear-gradient(90deg, #ffd700, #ff9500);
     transition: width 0.4s ease;
+    box-shadow: 0 0 8px gold;
 }
 
 .progress-text {
-    font-size: 0.7rem;
-    color: #ccc;
-    margin-top: 3px;
+    font-size: 0.8rem;
+    color: gold;
+    margin-top: 5px;
+    font-weight: bold;
+    text-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
 }
 
 .loyalty-badge {
@@ -99,6 +122,26 @@
     font-size: 0.7rem;
     margin-left: 6px;
     color: black;
+}
+
+.event-ticket-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 0.5rem 0;
+}
+
+.ticket-sold {
+    font-size: 0.9rem;
+    color: #d1f2ff;
+    font-weight: bold;
+}
+
+.button-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 0.8rem;
 }
 
 .buy-button,

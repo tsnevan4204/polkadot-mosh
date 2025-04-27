@@ -11,7 +11,9 @@ const Navbar = () => {
   return (
     <div className="navbar-container">
       <div className="navbar-top">
-        <h1 className="mosh-title">🎧 Mosh</h1>
+        <Link to="/" className="logo-link">
+          <h1 className="mosh-title">🎧 Mosh</h1>
+        </Link>
         <GoldRequirementSetter /> {/* ⭐ New loyalty setter */}
         <WalletButton />
       </div>

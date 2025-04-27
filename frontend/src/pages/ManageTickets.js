@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useWeb3 } from "../contexts/Web3Context";
 import { ethers } from "ethers";
+import { toast } from "react-hot-toast";
 import "./ManageTickets.css";
 
 const ManageTickets = () => {
@@ -38,7 +39,7 @@ const ManageTickets = () => {
 
   const listTicket = async (tokenId) => {
     const priceInput = prices[tokenId];
-    if (!priceInput) return alert("Set a price first!");
+    if (!priceInput) return toast.error("Set a price first!");
 
     try {
       const parsedPrice = ethers.utils.parseEther(priceInput.toString());
@@ -47,11 +48,11 @@ const ManageTickets = () => {
       const tx = await marketplaceContract.listTicket(tokenId, parsedPrice);
       await tx.wait();
 
-      alert("🎟️ Ticket listed!");
+      toast.success("Ticket listed!");
       window.location.reload();
     } catch (err) {
       console.error("List failed:", err);
-      alert("❌ List failed.");
+      toast.error("List failed.");
     }
   };
 
