@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { useWeb3 } from "../contexts/Web3Context";
 import { ethers } from "ethers";
-import MarketplacePage from "./MarketplaceView";
+import LoyaltyBadge from "../components/LoyaltyBadge";
 import "./ManageTickets.css";
 
 const ManageTickets = () => {
-  const { ticketContract, eventContract, marketplaceContract, address } = useWeb3();
+  const { ticketContract, eventContract, address } = useWeb3();
   const [myTickets, setMyTickets] = useState([]);
-  const [resalePrices, setResalePrices] = useState({});
   const [loading, setLoading] = useState(true);
+  const [artistTicketCounts, setArtistTicketCounts] = useState({}); // 🆕
 
   useEffect(() => {
     if (!ticketContract || !eventContract || !address) return;
@@ -17,31 +17,35 @@ const ManageTickets = () => {
       try {
         setLoading(true);
         const total = await ticketContract.nextTokenId();
-        const ticketsByEvent = {};
+        const owned = [];
+        const artistCounts = {};
 
         for (let i = 0; i < total; i++) {
-          const owner = await ticketContract.ownerOf(i);
-          if (owner.toLowerCase() === address.toLowerCase()) {
-            const uri = await ticketContract.tokenURI(i);
-            const eventIdBN = await ticketContract.tokenToEvent(i);
-            const eventId = Number(eventIdBN);
+          try {
+            const owner = await ticketContract.ownerOf(i);
+            if (owner.toLowerCase() === address.toLowerCase()) {
+              const uri = await ticketContract.tokenURI(i);
+              const eventIdBN = await ticketContract.tokenToEvent(i);
+              const eventId = Number(eventIdBN);
 
-            if (!ticketsByEvent[eventId]) {
               const event = await eventContract.events(eventId);
               const meta = await fetchMetadata(uri);
-              ticketsByEvent[eventId] = {
-                eventId,
-                metadata: meta,
-                eventData: event,
-                ticketIds: [],
-              };
-            }
+              const artist = meta?.attributes?.find(attr => attr.trait_type === "Artist")?.value || "Unknown Artist";
 
-            ticketsByEvent[eventId].ticketIds.push(i);
+              if (!artistCounts[artist]) {
+                artistCounts[artist] = 0;
+              }
+              artistCounts[artist] += 1;
+
+              owned.push({ eventId, metadata: meta, eventData: event, artist, ticketId: i });
+            }
+          } catch (err) {
+            // Skip if not exist
           }
         }
 
-        setMyTickets(Object.values(ticketsByEvent));
+        setArtistTicketCounts(artistCounts);
+        setMyTickets(owned);
       } catch (err) {
         console.error("Failed to fetch tickets:", err);
       }
@@ -63,27 +67,6 @@ const ManageTickets = () => {
     }
   };
 
-  const listTicketForSale = async (tokenId) => {
-    try {
-      const price = prompt("Enter resale price in DOT:");
-      if (!price) return;
-
-      const parsedPrice = ethers.utils.parseEther(price);
-
-      // 1. Approve marketplace to transfer ticket
-      await ticketContract.approve(marketplaceContract.address, tokenId);
-      console.log("✅ Approved marketplace");
-
-      // 2. List ticket for sale
-      const tx = await marketplaceContract.listTicket(tokenId, parsedPrice);
-      await tx.wait();
-      alert("🎉 Ticket listed for resale!");
-    } catch (err) {
-      console.error("Listing failed:", err);
-      alert("❌ Listing failed.");
-    }
-  };
-
   return (
     <div className="manage-tickets-container">
       <h1 className="page-title">🎟 Your Tickets</h1>
@@ -94,49 +77,31 @@ const ManageTickets = () => {
         <p className="glow-text">😢 No tickets purchased yet.</p>
       ) : (
         <div className="ticket-card-grid">
-          {myTickets.map(({ eventData, metadata, ticketIds, eventId }) => {
+          {myTickets.map(({ eventData, metadata, ticketId, artist, eventId }) => {
             const imageURL = metadata?.image?.startsWith("ipfs://")
               ? metadata.image.replace("ipfs://", "https://ipfs.io/ipfs/")
               : metadata?.image || "https://via.placeholder.com/400x200.png?text=Concert";
+
             const eventDate = eventData.eventDate
               ? new Date(Number(eventData.eventDate) * 1000).toLocaleString()
               : "Unknown Date";
-            const location = metadata?.attributes?.find(attr => attr.trait_type === "Location")?.value || "Unknown Location"; // Added location
-            const artist = metadata?.attributes?.find(attr => attr.trait_type === "Artist")?.value || "Unknown Artist"; // Added artist
+
+            const artistCount = artistTicketCounts[artist] || 0;
+            const goldRequirement = eventData.goldRequirement ? Number(eventData.goldRequirement) : 3; // fallback
+            const isGold = artistCount >= goldRequirement;
 
             return (
-              <div key={eventId} className="ticket-card">
+              <div key={ticketId} className="ticket-card">
                 <img src={imageURL} alt={metadata?.name} className="ticket-image" />
                 <div className="ticket-details">
-                  <h3>{metadata?.name || "Untitled Event"}</h3>
+                  <h3>{metadata?.name || "Untitled Event"} 
+                    <LoyaltyBadge isGold={isGold} progress={artistCount} goal={goldRequirement} />
+                  </h3>
                   <p>{metadata?.description}</p>
-                  <p>📍 Location: {location}</p> {/* Display location */}
-                  <p>🎤 Artist: {artist}</p> {/* Display artist */}
+                  <p>📍 Location: {metadata?.attributes?.find(attr => attr.trait_type === "Location")?.value || "Unknown Location"}</p>
+                  <p>🎤 Artist: {artist}</p>
                   <p>🆔 Event #{eventId}</p>
-                  <p>🎟 {ticketIds.length} ticket(s)</p>
                   <p>🗓 {eventDate}</p>
-                  <div className="resale-section">
-                    {ticketIds.map((tokenId) => (
-                      <div key={tokenId} className="resale-row">
-                        <span className="ticket-id">🎟 #{tokenId}</span>
-                        <input
-                          type="number"
-                          placeholder="Price (DOT)"
-                          value={resalePrices[tokenId] || ""}
-                          onChange={(e) =>
-                            setResalePrices({ ...resalePrices, [tokenId]: e.target.value })
-                          }
-                          className="resale-input"
-                        />
-                        <button
-                          onClick={() => listTicketForSale(tokenId)}
-                          className="resale-button"
-                        >
-                          List
-                        </button>
-                      </div>
-                    ))}
-                  </div>
                 </div>
               </div>
             );

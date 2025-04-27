@@ -1,0 +1,41 @@
+/* GoldRequirementSetter.css */
+
+.gold-requirement-form {
+    display: flex;
+    align-items: center;
+    margin-left: 1rem;
+}
+
+.gold-requirement-form input {
+    background-color: #1c1c1e;
+    /* dark */
+    border: 1px solid #444;
+    /* subtle border */
+    border-radius: 8px;
+    padding: 6px 10px;
+    color: #fff;
+    font-size: 14px;
+    width: 80px;
+    margin-right: 8px;
+    text-align: center;
+}
+
+.gold-requirement-form input::placeholder {
+    color: #888;
+}
+
+.gold-requirement-form button {
+    background: linear-gradient(135deg, #6e00ff, #bb00ff);
+    /* neon-ish purple */
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.gold-requirement-form button:hover {
+    background: linear-gradient(135deg, #bb00ff, #ff00c8);
+}

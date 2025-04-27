@@ -15,6 +15,8 @@ const EventCard = ({ event, onBuy, showBuyButton = true }) => {
     eventDate,
     organizer,
     cancelled,
+    loyaltyProgress,  // % Progress toward loyalty (0–100)
+    isGoldHolder      // true or false
   } = event;
 
   const name = metadata?.name || "Untitled Concert";
@@ -40,18 +42,35 @@ const EventCard = ({ event, onBuy, showBuyButton = true }) => {
 
       <div className="event-details">
         <h3 className="event-title">{name}</h3>
-        <p className="event-description">{description}</p>
-        <p className="event-meta">🎤 Artist: {artist}</p>
-        <p className="event-meta">📍 Location: {location}</p>
 
-        <div className="event-meta">
-          <p>🎫 {sold} / {supply} sold</p>
-          <p>🗓 {formattedDate}</p>
-          <p>🧾 {formattedPrice}</p>
+        <p className="artist-name">🎤 {artist}</p>
+        <p className="location-name">📍 {location}</p>
+        <p className="date-name">🗓 {formattedDate}</p>
+
+        <div className="event-ticket-info">
+          <p className="ticket-sold">🎫 {sold} / {supply} sold</p>
+          {/* Progress Bar for loyalty */}
+          {loyaltyProgress !== undefined && (
+            <div className="progress-bar-container">
+              <div className="progress-bar">
+                <div
+                  className="progress-bar-fill"
+                  style={{ width: `${loyaltyProgress}%` }}
+                />
+              </div>
+              <p className="progress-text">{loyaltyProgress}% toward Gold</p>
+            </div>
+          )}
+        </div>
+
+        <div className="price-section">
+          💰 <span className="price-text">{formattedPrice}</span>
+          {isGoldHolder && <span className="loyalty-badge">GOLD</span>}
         </div>
 
         {cancelled && <p className="cancelled-banner">❌ Cancelled</p>}
 
+        {/* BUY BUTTON under price */}
         {showBuyButton && !cancelled && (
           <button
             className="buy-button"
@@ -62,6 +81,7 @@ const EventCard = ({ event, onBuy, showBuyButton = true }) => {
           </button>
         )}
 
+        {/* Resell Button always shown */}
         <button
           className="resell-button"
           onClick={() => navigate(`/marketplace/${id}`)}

@@ -1,5 +1,5 @@
 {
-  "address": "0x6b485ccaC1310d550bf46c05f2628Bce43AD3fd5",
+  "address": "0xF8A10215Fe1809fE539B1b615E345C88B987B716",
   "abi": [
     {
       "inputs": [
@@ -239,6 +239,30 @@
     {
       "inputs": [
         {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "attendanceCount",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
           "internalType": "uint256",
           "name": "eventId",
           "type": "uint256"
@@ -282,6 +306,11 @@
         {
           "internalType": "uint256",
           "name": "eventDate",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "goldRequirement",
           "type": "uint256"
         }
       ],
@@ -363,6 +392,21 @@
           "internalType": "bool",
           "name": "cancelled",
           "type": "bool"
+        },
+        {
+          "internalType": "uint256",
+          "name": "loyaltyStartTimestamp",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "publicStartTimestamp",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "goldRequirement",
+          "type": "uint256"
         }
       ],
       "stateMutability": "view",
@@ -382,6 +426,30 @@
           "internalType": "address[]",
           "name": "",
           "type": "address[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "loyaltyTiers",
+      "outputs": [
+        {
+          "internalType": "enum EventManager.LoyaltyTier",
+          "name": "",
+          "type": "uint8"
         }
       ],
       "stateMutability": "view",

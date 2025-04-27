@@ -53,7 +53,21 @@ contract Marketplace is ReentrancyGuard, Ownable {
         require(msg.value >= listing.price, "Insufficient payment");
 
         uint256 eventId = ticketNFT.tokenToEvent(tokenId);
-        (, , , , , , , bool cancelled) = eventManager.events(eventId);
+
+        (
+            , // id
+            , // organizer
+            , // metadataURI
+            , // ticketPrice
+            , // maxTickets
+            , // ticketsSold
+            , // eventDate
+            bool cancelled, // cancelled
+            , // loyaltyStartTimestamp
+            , // publicStartTimestamp
+            // goldRequirement
+        ) = eventManager.events(eventId);
+
         require(!cancelled, "Event cancelled");
 
         delete listings[tokenId];

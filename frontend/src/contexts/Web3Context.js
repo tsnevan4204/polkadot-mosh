@@ -16,6 +16,7 @@ export const Web3Provider = ({ children }) => {
   const [marketplaceContract, setMarketplaceContract] = useState(null);
   const [network, setNetwork] = useState(null);
   const [role, setRole] = useState(null);
+  const [goldRequirement, setGoldRequirement] = useState(null);
 
   const connectWallet = async () => {
     if (!window.ethereum) {
@@ -86,22 +87,24 @@ export const Web3Provider = ({ children }) => {
   }, []);
 
   return (
-    <Web3Context.Provider
-      value={{
-        provider,
-        signer,
-        address,
-        network,
-        connectWallet,
-        disconnectWallet,
-        ticketContract,
-        eventContract,
-        marketplaceContract,
-        isConnected: !!signer,
-        role,
-      }}
-    >
-      {children}
+      <Web3Context.Provider
+    value={{
+      provider,
+      signer,
+      address,
+      network,
+      connectWallet,
+      disconnectWallet,
+      ticketContract,
+      eventContract,
+      marketplaceContract,
+      isConnected: !!signer,
+      role,
+      goldRequirement,
+      setGoldRequirement, // ✅ Add this
+    }}
+  >
+    {children}
     </Web3Context.Provider>
   );
 };

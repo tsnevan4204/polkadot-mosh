@@ -6,7 +6,8 @@ interface IEventManager {
         string memory metadataURI,
         uint256 ticketPrice,
         uint256 maxTickets,
-        uint256 eventDate
+        uint256 eventDate,
+        uint256 goldRequirement
     ) external;
 
     function buyTicket(uint256 eventId) external payable;
@@ -27,6 +28,9 @@ interface IEventManager {
         uint256 maxTickets,
         uint256 ticketsSold,
         uint256 eventDate,
-        bool cancelled
+        bool cancelled,
+        uint256 loyaltyStartTimestamp,
+        uint256 publicStartTimestamp,
+        uint256 goldRequirement
     );
 }

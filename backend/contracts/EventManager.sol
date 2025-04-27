@@ -10,7 +10,11 @@ contract EventManager is Ownable, IEventManager {
     uint256 public nextEventId;
 
     enum Role { None, Fan, Musician }
+    enum LoyaltyTier { None, Gold }
+
     mapping(address => Role) public roles;
+    mapping(address => mapping(address => uint256)) public attendanceCount; // fan -> artist -> events attended
+    mapping(address => mapping(address => LoyaltyTier)) public loyaltyTiers; // fan -> artist -> loyalty
 
     struct EventData {
         uint256 id;
@@ -19,8 +23,11 @@ contract EventManager is Ownable, IEventManager {
         uint256 ticketPrice;
         uint256 maxTickets;
         uint256 ticketsSold;
-        uint256 eventDate;
+        uint256 eventDate;             // Actual concert date
         bool cancelled;
+        uint256 loyaltyStartTimestamp; // When Gold fans can start buying
+        uint256 publicStartTimestamp;  // When everyone can start buying
+        uint256 goldRequirement;       // # of events needed to reach Gold loyalty
     }
 
     mapping(uint256 => EventData) public events;
@@ -53,7 +60,7 @@ contract EventManager is Ownable, IEventManager {
         ticketNFT = Ticket(_ticketNFT);
     }
 
-    // 🚀 Role registration (still useful for frontend filtering)
+    // 🚀 Role registration
     function registerAsFan() external {
         if (roles[msg.sender] != Role.None) revert AlreadyRegistered();
         roles[msg.sender] = Role.Fan;
@@ -66,14 +73,18 @@ contract EventManager is Ownable, IEventManager {
         emit Registered(msg.sender, Role.Musician);
     }
 
-    // 🛠 Event creation (no role check now)
+    // 🛠 Create an Event
     function createEvent(
         string memory metadataURI,
         uint256 ticketPrice,
         uint256 maxTickets,
-        uint256 eventDate
+        uint256 eventDate,
+        uint256 goldRequirement
     ) external override {
         if (eventDate <= block.timestamp) revert EventInPast();
+
+        uint256 loyaltyStart = block.timestamp;
+        uint256 publicStart = loyaltyStart + 7 days;
 
         uint256 eventId = nextEventId++;
         events[eventId] = EventData({
@@ -84,13 +95,16 @@ contract EventManager is Ownable, IEventManager {
             maxTickets: maxTickets,
             ticketsSold: 0,
             eventDate: eventDate,
-            cancelled: false
+            cancelled: false,
+            loyaltyStartTimestamp: loyaltyStart,
+            publicStartTimestamp: publicStart,
+            goldRequirement: goldRequirement
         });
 
         emit EventCreated(eventId, msg.sender);
     }
 
-    // 🛒 Ticket purchase (no role check now)
+    // 🛒 Buy a Ticket
     function buyTicket(uint256 eventId) external payable override {
         EventData storage evt = events[eventId];
 
@@ -101,8 +115,20 @@ contract EventManager is Ownable, IEventManager {
         if (msg.sender == evt.organizer) revert NotAllowedToBuyOwnTicket();
         if (msg.sender == address(this)) revert("Contract cannot buy its own ticket");
 
-        evt.ticketsSold += 1;
+        // Loyalty gating
+        if (block.timestamp < evt.loyaltyStartTimestamp) {
+            revert("Ticket sales not started yet");
+        }
 
+        LoyaltyTier fanTier = loyaltyTiers[msg.sender][evt.organizer];
+        if (fanTier != LoyaltyTier.Gold) {
+            if (block.timestamp < evt.publicStartTimestamp) {
+                revert("Public ticket sales not started yet");
+            }
+        }
+
+        // Proceed to mint and track
+        evt.ticketsSold += 1;
         uint256 ticketId = ticketNFT.mintTicket(msg.sender, evt.metadataURI, eventId);
         emit TicketPurchased(eventId, ticketId, msg.sender);
 
@@ -112,6 +138,21 @@ contract EventManager is Ownable, IEventManager {
 
         (bool sent, ) = payable(evt.organizer).call{value: msg.value}("");
         if (!sent) revert ForwardFailed();
+
+        // Update attendance and loyalty
+        attendanceCount[msg.sender][evt.organizer] += 1;
+        _checkLoyaltyUpgrade(msg.sender, evt.organizer, evt.goldRequirement);
+    }
+
+    function _checkLoyaltyUpgrade(address fan, address artist, uint256 goldRequirement) internal {
+        if (loyaltyTiers[fan][artist] == LoyaltyTier.Gold) {
+            return; // Already Gold
+        }
+
+        uint256 attended = attendanceCount[fan][artist];
+        if (attended >= goldRequirement) {
+            loyaltyTiers[fan][artist] = LoyaltyTier.Gold;
+        }
     }
 
     function updateEventMetadataURI(uint256 eventId, string calldata newURI) external override {

@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useWeb3 } from "../contexts/Web3Context";
 import WalletButton from "./WalletButton";
 import "./Navbar.css";
+import GoldRequirementSetter from "./GoldRequirementSetter";
 
 const Navbar = () => {
   const { role } = useWeb3();
@@ -11,8 +12,10 @@ const Navbar = () => {
     <div className="navbar-container">
       <div className="navbar-top">
         <h1 className="mosh-title">🎧 Mosh</h1>
+        <GoldRequirementSetter /> {/* ⭐ New loyalty setter */}
         <WalletButton />
       </div>
+
 
       <nav className="navbar-links">
         {role && (

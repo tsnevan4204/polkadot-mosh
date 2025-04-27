@@ -2,21 +2,22 @@ import React, { useState } from "react";
 import { useWeb3 } from "../contexts/Web3Context";
 import { ethers } from "ethers";
 import axios from "axios";
+import { toast } from "react-hot-toast";
 import "./CreateConcertForm.css";
 
 const PINATA_API_KEY = "3bf4164172fae7b68de3";
 const PINATA_SECRET = "32288745dd22dabdcc87653918e33841ccfcfbd45c43a89709f873aedcc7c9fe";
 
 const CreateConcertForm = ({ onCreated }) => {
-  const { eventContract, address } = useWeb3();
+  const { eventContract, address, goldRequirement } = useWeb3();
   const [form, setForm] = useState({
     name: "",
     description: "",
     price: "",
     totalSupply: "",
     date: "",
-    location: "", // Added location field
-    artist: "" // Added artist field
+    location: "",
+    artist: ""
   });
   const [image, setImage] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -49,8 +50,8 @@ const CreateConcertForm = ({ onCreated }) => {
       image: `ipfs://${imageHash}`,
       attributes: [
         { trait_type: "Event Date", value: form.date },
-        { trait_type: "Location", value: form.location }, // Added location to metadata
-        { trait_type: "Artist", value: form.artist } // Added artist to metadata
+        { trait_type: "Location", value: form.location },
+        { trait_type: "Artist", value: form.artist }
       ],
     };
 
@@ -70,36 +71,37 @@ const CreateConcertForm = ({ onCreated }) => {
 
   const createConcert = async (e) => {
     e.preventDefault();
-    if (!eventContract || !address) return alert("Connect wallet first.");
-    if (!image) return alert("Please upload an image.");
+    if (!eventContract || !address) return toast.error("❌ Connect your wallet first!");
+    if (!image) return toast.error("❌ Please upload an image!");
+    if (!form.price) return toast.error("❌ Enter a valid ticket price.");
 
     try {
       setLoading(true);
       const metadataURI = await uploadToPinata();
-      const timestamp = Math.floor(new Date(form.date).getTime() / 1000);
-
-      console.log("eventContract:", eventContract);
-      console.log("address:", address);
+      const eventDateTimestamp = Math.floor(new Date(form.date).getTime() / 1000);
 
       const tx = await eventContract.createEvent(
         metadataURI,
-        ethers.utils.parseEther(form.price),
+        ethers.utils.parseEther(form.price.toString()),
         parseInt(form.totalSupply),
-        timestamp
+        eventDateTimestamp,
+        goldRequirement
       );
       await tx.wait();
 
-      alert("🎉 Concert created!");
+      toast.success("🎉 Concert created!");
       setForm({ name: "", description: "", price: "", totalSupply: "", date: "", location: "", artist: "" });
       setImage(null);
       if (onCreated) onCreated();
     } catch (err) {
       console.error("Create failed:", err);
-      alert("❌ Failed to create concert.");
+      toast.error("❌ Failed to create concert.");
     } finally {
       setLoading(false);
     }
   };
+
+  const isFormValid = form.name && form.description && form.price && form.totalSupply && form.date && form.location && form.artist && image && goldRequirement;
 
   return (
     <form onSubmit={createConcert} className="concert-form">
@@ -111,8 +113,13 @@ const CreateConcertForm = ({ onCreated }) => {
       <input type="number" name="price" placeholder="Ticket Price (ETH)" value={form.price} onChange={updateField} required />
       <input type="number" name="totalSupply" placeholder="Total Tickets" value={form.totalSupply} onChange={updateField} required />
       <input type="file" accept="image/*" onChange={handleImageChange} required />
-      <button type="submit" disabled={loading}>
-        {loading ? "Creating..." : "🚀 Launch Concert"}
+      
+      <button type="submit" disabled={loading || !isFormValid}>
+        {loading ? (
+          <span className="spinner"></span> // 👈 Spinner appears during "Creating..."
+        ) : (
+          "🚀 Launch Concert"
+        )}
       </button>
     </form>
   );
