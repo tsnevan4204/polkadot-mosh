@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { ethers } from "ethers";
-import { toast } from "react-hot-toast";
 import { useWeb3 } from "../contexts/Web3Context";
+import { toast } from "react-hot-toast";
 import "./MarketplaceView.css";
 
 const MarketplacePage = () => {
@@ -12,52 +12,57 @@ const MarketplacePage = () => {
   const [metadata, setMetadata] = useState({});
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [buying, setBuying] = useState(false);
+
+  const fetchMarketplace = async () => {
+    if (!eventContract || !marketplaceContract) return;
+    setLoading(true);
+
+    try {
+      const event = await eventContract.events(eventId);
+      setEventData(event);
+
+      const metaRes = await fetch(event.metadataURI.replace("ipfs://", "https://ipfs.io/ipfs/"));
+      const meta = await metaRes.json();
+      setMetadata(meta);
+
+      const listedTokenIds = await marketplaceContract.getListingsByEvent(eventId);
+      const listingData = await Promise.all(
+        listedTokenIds.map(async (tokenId) => {
+          const listing = await marketplaceContract.listings(tokenId);
+          return {
+            tokenId,
+            price: listing.price,
+            seller: listing.seller,
+          };
+        })
+      );
+      setListings(listingData);
+    } catch (err) {
+      console.error("Marketplace load failed:", err);
+    }
+
+    setLoading(false);
+  };
 
   useEffect(() => {
-    if (!eventContract || !marketplaceContract) return;
-
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const event = await eventContract.events(eventId);
-        setEventData(event);
-
-        const metaRes = await fetch(event.metadataURI.replace("ipfs://", "https://ipfs.io/ipfs/"));
-        const meta = await metaRes.json();
-        setMetadata(meta);
-
-        const listedTokenIds = await marketplaceContract.getListingsByEvent(eventId);
-        const listingData = await Promise.all(
-          listedTokenIds.map(async (tokenId) => {
-            const listing = await marketplaceContract.listings(tokenId);
-            return {
-              tokenId,
-              price: listing.price,
-              seller: listing.seller,
-            };
-          })
-        );
-        setListings(listingData);
-      } catch (err) {
-        console.error("Marketplace load failed:", err);
-      }
-      setLoading(false);
-    };
-
-    fetchData();
+    fetchMarketplace();
   }, [eventContract, marketplaceContract, eventId]);
 
   const formatEther = (value) => ethers.utils.formatEther(value);
 
   const buyTicket = async (tokenId, price) => {
     try {
+      setBuying(true);
       const tx = await marketplaceContract.buyTicket(tokenId, { value: price });
       await tx.wait();
-      toast.success("Ticket purchased!");
-      window.location.reload();
+      toast.success("🎟️ Ticket purchased!");
+      fetchMarketplace(); // ✅ reload marketplace after purchase
     } catch (err) {
       console.error("Buy failed:", err);
-      toast.error("Failed to buy ticket.");
+      toast.error("❌ Failed to buy ticket.");
+    } finally {
+      setBuying(false);
     }
   };
 
@@ -100,8 +105,9 @@ const MarketplacePage = () => {
                     <button
                       className="buy-button"
                       onClick={() => buyTicket(l.tokenId, l.price)}
+                      disabled={buying}
                     >
-                      Buy
+                      {buying ? "Buying..." : "Buy"}
                     </button>
                   </li>
                 ))}
