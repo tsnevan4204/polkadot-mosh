@@ -5,6 +5,8 @@ import EventManager from "../abis/EventManager.json";
 import Marketplace from "../abis/Marketplace.json";
 import { toast } from "react-hot-toast";
 import ArtistRegistrationForm from "../components/ArtistRegistrationForm";
+import RoleSelector from "../components/RoleSelector";
+import LoadingSpinner from "../components/LoadingSpinner";
 import axios from "axios";
 
 const PINATA_API_KEY = "3bf4164172fae7b68de3";
@@ -22,6 +24,8 @@ export const Web3Provider = ({ children }) => {
   const [network, setNetwork] = useState(null);
   const [role, setRole] = useState(null);
   const [showArtistForm, setShowArtistForm] = useState(false);
+  const [showRoleSelector, setShowRoleSelector] = useState(false);
+  const [tempUserAddress, setTempUserAddress] = useState(null);
   
   // Artist specific states
   const [artistName, setArtistName] = useState(null);
@@ -29,54 +33,75 @@ export const Web3Provider = ({ children }) => {
   // Cache for artist profiles (address -> {name, goldRequirement})
   const [artistProfiles, setArtistProfiles] = useState({});
 
+  const [isConnecting, setIsConnecting] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState("");
+
   const connectWallet = async () => {
     if (!window.ethereum) {
       alert("Please install MetaMask!");
       return;
     }
 
-    const _provider = new ethers.providers.Web3Provider(window.ethereum);
-    await _provider.send("eth_requestAccounts", []);
-    const _signer = _provider.getSigner();
-    const _address = await _signer.getAddress();
-    const _network = await _provider.getNetwork();
-    console.log("🛰 Connected to chain ID:", _network.chainId);
-
-    const _ticket = new ethers.Contract(Ticket.address, Ticket.abi, _signer);
-    const _event = new ethers.Contract(EventManager.address, EventManager.abi, _signer);
-    const _marketplace = new ethers.Contract(Marketplace.address, Marketplace.abi, _signer);
-
-    setProvider(_provider);
-    setSigner(_signer);
-    setAddress(_address);
-    setNetwork(_network);
-    setTicketContract(_ticket);
-    setEventContract(_event);
-    setMarketplaceContract(_marketplace);
-
-    // Load saved user role from localStorage
-    // We'll still use localStorage for the role since it's just a UI preference
-    const savedRole = localStorage.getItem(`mosh-role-${_address}`);
-    
-    if (savedRole) {
-      setRole(savedRole);
+    try {
+      setIsConnecting(true);
+      setLoadingMessage("Connecting to your wallet...");
       
-      // If they're an artist, try to fetch their profile from their most recent event
-      if (savedRole === "musician") {
-        try {
-          const profile = await fetchArtistProfile(_address, _event);
-          if (profile) {
-            setArtistName(profile.name);
-            setGoldRequirement(profile.goldRequirement);
+      const _provider = new ethers.providers.Web3Provider(window.ethereum);
+      await _provider.send("eth_requestAccounts", []);
+      
+      setLoadingMessage("Getting account information...");
+      const _signer = _provider.getSigner();
+      const _address = await _signer.getAddress();
+      const _network = await _provider.getNetwork();
+      console.log("🛰 Connected to chain ID:", _network.chainId);
+
+      setLoadingMessage("Loading smart contracts...");
+      const _ticket = new ethers.Contract(Ticket.address, Ticket.abi, _signer);
+      const _event = new ethers.Contract(EventManager.address, EventManager.abi, _signer);
+      const _marketplace = new ethers.Contract(Marketplace.address, Marketplace.abi, _signer);
+
+      setProvider(_provider);
+      setSigner(_signer);
+      setAddress(_address);
+      setNetwork(_network);
+      setTicketContract(_ticket);
+      setEventContract(_event);
+      setMarketplaceContract(_marketplace);
+
+      // Load saved user role from localStorage
+      // We'll still use localStorage for the role since it's just a UI preference
+      const savedRole = localStorage.getItem(`mosh-role-${_address}`);
+      
+      if (savedRole) {
+        setRole(savedRole);
+        
+        // If they're an artist, try to fetch their profile from their most recent event
+        if (savedRole === "musician") {
+          try {
+            setLoadingMessage("Loading artist profile...");
+            const profile = await fetchArtistProfile(_address, _event);
+            if (profile) {
+              setArtistName(profile.name);
+              setGoldRequirement(profile.goldRequirement);
+            }
+          } catch (err) {
+            console.error("Failed to load artist profile:", err);
+            // If we can't load profile, prompt to create one
+            setShowArtistForm(true);
           }
-        } catch (err) {
-          console.error("Failed to load artist profile:", err);
-          // If we can't load profile, prompt to create one
-          setShowArtistForm(true);
         }
+      } else {
+        // Show role selector instead of toast
+        setTempUserAddress(_address);
+        setShowRoleSelector(true);
       }
-    } else {
-      promptRoleSelection(_address);
+    } catch (error) {
+      console.error("Connection failed:", error);
+      toast.error("Failed to connect wallet");
+    } finally {
+      setIsConnecting(false);
+      setLoadingMessage("");
     }
   };
 
@@ -153,32 +178,25 @@ export const Web3Provider = ({ children }) => {
     setRole(null);
     setArtistName(null);
     setGoldRequirement(0); // Reset to default
-  };
-
-  const promptRoleSelection = (userAddress) => {
-    toast((t) => (
-      <span>
-        🎭 Pick your role:
-        <div style={{ marginTop: "8px" }}>
-          <button onClick={() => selectRole('fan', userAddress, t.id)}>🎟 Fan</button>
-          <button onClick={() => handleMusicianSelect(userAddress, t.id)}>🎤 Musician</button>
-        </div>
-      </span>
-    ), { duration: Infinity });
-  };
-
-  const selectRole = (chosenRole, userAddress, toastId) => {
-    setRole(chosenRole);
-    localStorage.setItem(`mosh-role-${userAddress}`, chosenRole);
-    toast.dismiss(toastId);
-  };
-
-  const handleMusicianSelect = (userAddress, toastId) => {
-    // First dismiss the role selection toast
-    toast.dismiss(toastId);
     
-    // Show the artist registration form
-    setShowArtistForm(true);
+    // Force redirect to home page
+    window.location.href = "/";
+  };
+
+  const handleSelectFan = () => {
+    if (tempUserAddress) {
+      setRole('fan');
+      localStorage.setItem(`mosh-role-${tempUserAddress}`, 'fan');
+      setShowRoleSelector(false);
+    }
+  };
+
+  const handleSelectArtist = () => {
+    if (tempUserAddress) {
+      setShowRoleSelector(false);
+      // Show the artist registration form
+      setShowArtistForm(true);
+    }
   };
 
   // Upload artist profile to IPFS
@@ -217,8 +235,13 @@ export const Web3Provider = ({ children }) => {
     if (!address || !eventContract) return;
     
     try {
+      setIsLoading(true);
+      setLoadingMessage("Registering as an artist...");
+      
       // First register as musician on the contract
       const tx = await eventContract.registerAsMusician();
+      
+      setLoadingMessage("Confirming transaction...");
       await tx.wait();
       
       // Save artist profile info locally for this session
@@ -241,10 +264,13 @@ export const Web3Provider = ({ children }) => {
       // Hide the form
       setShowArtistForm(false);
       
-      toast.success(`Welcome, ${name}! Your gold loyalty tier is set to ${goldReq} concerts.`);
+      toast.success(`Welcome, ${name}!`);
     } catch (err) {
       console.error("Artist registration failed:", err);
       toast.error("Registration failed. Please try again.");
+    } finally {
+      setIsLoading(false);
+      setLoadingMessage("");
     }
   };
 
@@ -297,6 +323,21 @@ export const Web3Provider = ({ children }) => {
     }
   }, [address, role, artistName]);
 
+  // Show global loading overlay for connecting/loading states
+  if (isConnecting || isLoading) {
+    return <LoadingSpinner fullscreen={true} text={loadingMessage} />;
+  }
+
+  // If role selector needs to be displayed, render it as a modal overlay
+  if (showRoleSelector) {
+    return (
+      <RoleSelector 
+        onSelectFan={handleSelectFan} 
+        onSelectArtist={handleSelectArtist} 
+      />
+    );
+  }
+
   // If artist form needs to be displayed, render it as a modal overlay
   if (showArtistForm) {
     return (
@@ -325,6 +366,7 @@ export const Web3Provider = ({ children }) => {
         setGoldRequirement: updateGoldRequirement,
         getArtistName,
         fetchArtistProfile,
+        isConnecting,
       }}
     >
       {children}

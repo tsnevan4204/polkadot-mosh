@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useWeb3 } from "../contexts/Web3Context";
 import { toast } from "react-hot-toast";
+import LoadingSpinner from "./LoadingSpinner";
 import "./ArtistRegistrationForm.css";
 
 const ArtistRegistrationForm = ({ onComplete }) => {
@@ -8,6 +9,7 @@ const ArtistRegistrationForm = ({ onComplete }) => {
     artistName: "",
     goldRequirement: 0
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -17,7 +19,7 @@ const ArtistRegistrationForm = ({ onComplete }) => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!form.artistName.trim()) {
@@ -30,8 +32,15 @@ const ArtistRegistrationForm = ({ onComplete }) => {
       toast.error("Gold requirement must be a non-negative number");
       return;
     }
-
-    onComplete(form.artistName, goldReq);
+    
+    setIsSubmitting(true);
+    try {
+      await onComplete(form.artistName, goldReq);
+    } catch (error) {
+      console.error("Registration failed:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -50,6 +59,7 @@ const ArtistRegistrationForm = ({ onComplete }) => {
             onChange={handleChange}
             placeholder="Enter your artist name"
             required
+            disabled={isSubmitting}
           />
         </div>
 
@@ -66,6 +76,7 @@ const ArtistRegistrationForm = ({ onComplete }) => {
             onChange={handleChange}
             min="0"
             placeholder="0"
+            disabled={isSubmitting}
           />
           <p className="input-help">
             Minimum concerts required for fans to reach Gold status.
@@ -74,8 +85,15 @@ const ArtistRegistrationForm = ({ onComplete }) => {
           </p>
         </div>
 
-        <button type="submit" className="submit-button">
-          Complete Registration
+        <button type="submit" className="submit-button" disabled={isSubmitting}>
+          {isSubmitting ? (
+            <span className="button-loading">
+              <LoadingSpinner size="small" />
+              <span>Registering...</span>
+            </span>
+          ) : (
+            "Complete Registration"
+          )}
         </button>
       </form>
     </div>

@@ -2,8 +2,9 @@ import React, { useState, useEffect } from "react";
 import { useEvents } from "../hooks/useEvents";
 import { useWeb3 } from "../contexts/Web3Context";
 import { toast } from "react-hot-toast";
-import EventCard from "../components/EventCard"; // Placeholder for the EventCard component
-import "./BrowseEvents.css"; // 👈 you'll create this file
+import EventCard from "../components/EventCard";
+import LoadingSpinner from "../components/LoadingSpinner";
+import "./BrowseEvents.css";
 
 const BrowseEvents = () => {
   const { events, loading, refetch } = useEvents();
@@ -42,9 +43,11 @@ const BrowseEvents = () => {
           <p>Connect your wallet to buy tickets and access exclusive features! 🎟️</p>
         </div>
       ) : loading ? (
-        <p className="glow-text">⚡ Loading events...</p>
+        <div className="loading-events">
+          <LoadingSpinner size="large" text="Loading upcoming concerts..." />
+        </div>
       ) : events.length === 0 ? (
-        <p className="glow-text">🚫 No events yet. You rebel, make one!</p>
+        <p className="glow-text">🚫 No events yet.</p>
       ) : (
         <div className="event-grid">
           {events.map((e, i) => (
@@ -59,18 +62,9 @@ const BrowseEvents = () => {
         </div>
       )}
       
-      {isGuestUser && events.length > 0 && (
-        <div className="event-grid">
-          {events.map((e, i) => (
-            <EventCard
-              key={i}
-              event={e}
-              onBuy={buyTicket}
-              showBuyButton={false}
-              isGuestUser={true}
-            />
-          ))}
-        </div>
+      {/* Transaction loading overlay */}
+      {txPending && (
+        <LoadingSpinner fullscreen={true} text="Processing your purchase..." />
       )}
     </div>
   );

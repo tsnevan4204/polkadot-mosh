@@ -97,6 +97,20 @@
   box-shadow: 0 0 15px rgba(255, 0, 200, 0.8);
 }
 
+.submit-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  background: #444;
+  box-shadow: none;
+}
+
+.button-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
 .artist-form-overlay {
   position: fixed;
   top: 0;

@@ -2,12 +2,15 @@ import React, { useEffect, useState } from "react";
 import { ethers } from "ethers";
 import { useNavigate } from "react-router-dom";
 import { useWeb3 } from "../contexts/Web3Context";
+import LoadingSpinner from "./LoadingSpinner";
 import "./EventCard.css";
 
 const EventCard = ({ event, onBuy, showBuyButton = true, isGuestUser = false }) => {
   const navigate = useNavigate();
-  const { getArtistName } = useWeb3();
+  const { getArtistName, connectWallet } = useWeb3();
   const [artistName, setArtistName] = useState("Unknown Artist");
+  const [isConnecting, setIsConnecting] = useState(false);
+  const [isBuying, setIsBuying] = useState(false);
 
   const {
     id,
@@ -64,7 +67,14 @@ const EventCard = ({ event, onBuy, showBuyButton = true, isGuestUser = false }) 
   }, [metadata, organizer, getArtistName]);
 
   const formattedDate = eventDate
-    ? new Date(Number(eventDate) * 1000).toLocaleString()
+    ? new Date(Number(eventDate) * 1000).toLocaleString(undefined, {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      })
     : "Date TBD";
 
   const formattedPrice = price ? `${ethers.utils.formatEther(price)} DOT` : "—";
@@ -72,17 +82,34 @@ const EventCard = ({ event, onBuy, showBuyButton = true, isGuestUser = false }) 
   const supply = maxTickets ? maxTickets.toString() : "?";
   const soldOut = ticketsSold && maxTickets && ticketsSold.gte(maxTickets);
 
-  const handleConnectWallet = () => {
-    alert("Please connect your wallet to buy tickets or access the marketplace!");
+  const handleConnectWallet = async () => {
+    setIsConnecting(true);
+    try {
+      await connectWallet();
+    } finally {
+      setIsConnecting(false);
+    }
+  };
+
+  const handleBuyTicket = async () => {
+    if (isBuying) return;
+    
+    setIsBuying(true);
+    try {
+      await onBuy(id, price);
+    } finally {
+      setIsBuying(false);
+    }
   };
 
   return (
     <div className="event-card">
+      {cancelled && <div className="cancelled-banner">Cancelled</div>}
+      
       <img src={imageURL} alt={name} className="event-image" />
 
       <div className="event-details">
         <h3 className="event-title">{name}</h3>
-
         <p className="artist-name">🎤 {artistName}</p>
         <p className="location-name">📍 {location}</p>
         <p className="date-name">🗓 {formattedDate}</p>
@@ -90,16 +117,16 @@ const EventCard = ({ event, onBuy, showBuyButton = true, isGuestUser = false }) 
           <p className="ticket-sold">🎫 {sold} / {supply} sold</p>
           
           {/* Only show progress bar for connected users, not for guests */}
-          {!isGuestUser && attendedCount !== undefined && loyaltyProgress !== undefined && goldRequirement > 0 && (
+          {!isGuestUser && goldRequirement > 0 && (
             <div className="progress-bar-container">
               <div className="progress-bar">
                 <div
                   className="progress-bar-fill"
-                  style={{ width: `${loyaltyProgress}%` }}
+                  style={{ width: `${loyaltyProgress || 0}%` }}
                 />
               </div>
               <p className="progress-text">
-                {attendedCount !== undefined ? `${attendedCount}/${goldRequirement} events` : `${loyaltyProgress}%`} toward Gold
+                {attendedCount !== undefined ? `${attendedCount || 0}/${goldRequirement} events` : `${loyaltyProgress || 0}%`} toward Gold
               </p>
             </div>
           )}
@@ -108,38 +135,54 @@ const EventCard = ({ event, onBuy, showBuyButton = true, isGuestUser = false }) 
         <div className="price-section">
           💰 <span className="price-text">{formattedPrice}</span>
           {/* Only show gold badge for connected users, not for guests */}
-          {!isGuestUser && isGoldHolder && attendedCount !== undefined && <span className="loyalty-badge">GOLD</span>}
+          {!isGuestUser && isGoldHolder && <span className="loyalty-badge">GOLD</span>}
         </div>
 
-        {cancelled && <p className="cancelled-banner">❌ Cancelled</p>}
+        {/* Only show buttons if event is not cancelled */}
+        {!cancelled ? (
+          <>
+            {/* BUY BUTTON - Only shown for connected users, not for guests */}
+            {showBuyButton && !isGuestUser && (
+              <button
+                className="buy-button"
+                onClick={handleBuyTicket}
+                disabled={soldOut || isBuying}
+              >
+                {soldOut ? "SOLD OUT" : (
+                  isBuying ? (
+                    <span className="button-loading">
+                      <LoadingSpinner size="small" />
+                      <span>Buying...</span>
+                    </span>
+                  ) : "🌀 Buy Ticket"
+                )}
+              </button>
+            )}
 
-        {/* BUY BUTTON - Only shown for connected users, not for guests */}
-        {showBuyButton && !cancelled && !isGuestUser && (
-          <button
-            className="buy-button"
-            onClick={() => onBuy?.(id, price)}
-            disabled={soldOut}
-          >
-            {soldOut ? "SOLD OUT" : "🌀 Buy Ticket"}
-          </button>
-        )}
-
-        {/* For guests, show a connect wallet prompt instead of marketplace/buy buttons */}
-        {isGuestUser ? (
-          <button 
-            className="connect-wallet-button"
-            onClick={handleConnectWallet}
-          >
-            🔌 Connect Wallet
-          </button>
-        ) : (
-          <button
-            className="resell-button"
-            onClick={() => navigate(`/marketplace/${id}`)}
-          >
-            🔁 View Marketplace
-          </button>
-        )}
+            {/* For guests, show a connect wallet prompt instead of marketplace/buy buttons */}
+            {isGuestUser ? (
+              <button 
+                className="connect-wallet-button"
+                onClick={handleConnectWallet}
+                disabled={isConnecting}
+              >
+                {isConnecting ? (
+                  <span className="button-loading">
+                    <LoadingSpinner size="small" />
+                    <span>Connecting...</span>
+                  </span>
+                ) : "🔌 Connect Wallet"}
+              </button>
+            ) : (
+              <button
+                className="resell-button"
+                onClick={() => navigate(`/marketplace/${id}`)}
+              >
+                🔁 View Marketplace
+              </button>
+            )}
+          </>
+        ) : null}
       </div>
     </div>
   );

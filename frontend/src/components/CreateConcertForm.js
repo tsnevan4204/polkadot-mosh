@@ -3,6 +3,7 @@ import { useWeb3 } from "../contexts/Web3Context";
 import { ethers } from "ethers";
 import axios from "axios";
 import { toast } from "react-hot-toast";
+import LoadingSpinner from "./LoadingSpinner";
 import "./CreateConcertForm.css";
 
 const PINATA_API_KEY = "3bf4164172fae7b68de3";
@@ -20,6 +21,11 @@ const CreateConcertForm = ({ onCreated }) => {
   });
   const [image, setImage] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState({
+    stage: "",
+    percent: 0,
+    isUploading: false
+  });
 
   const updateField = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -30,6 +36,12 @@ const CreateConcertForm = ({ onCreated }) => {
   };
 
   const uploadToPinata = async () => {
+    setUploadProgress({
+      stage: "Uploading concert image to IPFS",
+      percent: 10,
+      isUploading: true
+    });
+    
     const formData = new FormData();
     formData.append("file", image);
 
@@ -40,6 +52,12 @@ const CreateConcertForm = ({ onCreated }) => {
         pinata_api_key: PINATA_API_KEY,
         pinata_secret_api_key: PINATA_SECRET,
       },
+    });
+
+    setUploadProgress({
+      stage: "Preparing concert metadata",
+      percent: 40,
+      isUploading: true
     });
 
     const imageHash = imageRes.data.IpfsHash;
@@ -55,6 +73,12 @@ const CreateConcertForm = ({ onCreated }) => {
       ],
     };
 
+    setUploadProgress({
+      stage: "Uploading concert metadata to IPFS",
+      percent: 70,
+      isUploading: true
+    });
+
     const metadataRes = await axios.post(
       "https://api.pinata.cloud/pinning/pinJSONToIPFS",
       metadata,
@@ -65,6 +89,12 @@ const CreateConcertForm = ({ onCreated }) => {
         },
       }
     );
+
+    setUploadProgress({
+      stage: "Concert data stored successfully",
+      percent: 100,
+      isUploading: true
+    });
 
     return `ipfs://${metadataRes.data.IpfsHash}`;
   };
@@ -85,6 +115,8 @@ const CreateConcertForm = ({ onCreated }) => {
 
     try {
       setLoading(true);
+      
+      // First upload to IPFS
       const metadataURI = await uploadToPinata();
       const eventDateTimestamp = Math.floor(eventDate.getTime() / 1000);
 
@@ -92,7 +124,11 @@ const CreateConcertForm = ({ onCreated }) => {
       // This ensures that the most recently updated gold requirement is used
       const currentGoldRequirement = goldRequirement;
       
-      toast.loading("Creating your concert...");
+      setUploadProgress({
+        stage: "Creating your concert on the blockchain",
+        percent: 100,
+        isUploading: true
+      });
       
       const tx = await eventContract.createEvent(
         metadataURI,
@@ -101,9 +137,15 @@ const CreateConcertForm = ({ onCreated }) => {
         eventDateTimestamp,
         currentGoldRequirement
       );
+      
+      setUploadProgress({
+        stage: "Waiting for transaction confirmation",
+        percent: 100,
+        isUploading: true
+      });
+      
       await tx.wait();
 
-      toast.dismiss();
       toast.success("Concert created!");
       setForm({ name: "", description: "", price: "", totalSupply: "", date: "", location: "" });
       setImage(null);
@@ -113,38 +155,62 @@ const CreateConcertForm = ({ onCreated }) => {
       toast.error("Failed to create concert.");
     } finally {
       setLoading(false);
+      setUploadProgress({
+        stage: "",
+        percent: 0,
+        isUploading: false
+      });
     }
   };
 
   const isFormValid = form.name && form.description && form.price && form.totalSupply && form.date && form.location && image;
 
   return (
-    <form onSubmit={createConcert} className="concert-form">
-      <div className="form-group">
-        <label htmlFor="name">Concert Name</label>
-        <input 
-          id="name" 
-          type="text" 
-          name="name" 
-          value={form.name} 
-          onChange={updateField} 
-          required 
-        />
-      </div>
+    <>
+      {loading && (
+        <div className="create-concert-overlay">
+          <div className="upload-progress">
+            <LoadingSpinner size="large" />
+            <h3>{uploadProgress.stage}</h3>
+            <div className="progress-bar-container">
+              <div 
+                className="progress-bar-fill" 
+                style={{width: `${uploadProgress.percent}%`}}
+              ></div>
+            </div>
+            <p className="progress-info">{uploadProgress.percent}% Complete</p>
+          </div>
+        </div>
+      )}
       
-      <div className="form-group">
-        <label htmlFor="description">Concert Description</label>
-        <textarea 
-          id="description" 
-          name="description" 
-          value={form.description} 
-          onChange={updateField} 
-          required 
-        />
-      </div>
-      
-      <div className="form-row">
+      <form onSubmit={createConcert} className="concert-form">
         <div className="form-group">
+          <label htmlFor="name">Concert Name</label>
+          <input 
+            id="name" 
+            type="text" 
+            name="name" 
+            value={form.name} 
+            onChange={updateField} 
+            required 
+            disabled={loading}
+          />
+        </div>
+        
+        <div className="form-group">
+          <label htmlFor="description">Concert Description</label>
+          <textarea 
+            id="description" 
+            name="description" 
+            value={form.description} 
+            onChange={updateField} 
+            required 
+            disabled={loading}
+          />
+        </div>
+        
+        <div className="form-row">
+        <div className="form-group custom-datetime">
           <label htmlFor="date">Event Date & Time</label>
           <input 
             id="date" 
@@ -153,67 +219,78 @@ const CreateConcertForm = ({ onCreated }) => {
             value={form.date} 
             onChange={updateField} 
             required 
+            disabled={loading}
           />
+        </div>
+          
+          <div className="form-group">
+            <label htmlFor="location">Location</label>
+            <input 
+              id="location" 
+              type="text" 
+              name="location" 
+              value={form.location} 
+              onChange={updateField} 
+              required 
+              disabled={loading}
+            />
+          </div>
+        </div>
+        
+        <div className="form-row">
+          <div className="form-group">
+            <label htmlFor="price">Ticket Price (DOT)</label>
+            <input 
+              id="price" 
+              type="number" 
+              name="price" 
+              value={form.price} 
+              onChange={updateField} 
+              step="0.001"
+              min="0"
+              required 
+              disabled={loading}
+            />
+          </div>
+          
+          <div className="form-group">
+            <label htmlFor="totalSupply">Total Tickets</label>
+            <input 
+              id="totalSupply" 
+              type="number" 
+              name="totalSupply" 
+              value={form.totalSupply} 
+              onChange={updateField} 
+              required 
+              disabled={loading}
+            />
+          </div>
         </div>
         
         <div className="form-group">
-          <label htmlFor="location">Location</label>
+          <label htmlFor="concertImage">Concert Image</label>
           <input 
-            id="location" 
-            type="text" 
-            name="location" 
-            value={form.location} 
-            onChange={updateField} 
+            id="concertImage" 
+            type="file" 
+            accept="image/*" 
+            onChange={handleImageChange} 
             required 
-          />
-        </div>
-      </div>
-      
-      <div className="form-row">
-        <div className="form-group">
-          <label htmlFor="price">Ticket Price (DOT)</label>
-          <input 
-            id="price" 
-            type="number" 
-            name="price" 
-            value={form.price} 
-            onChange={updateField} 
-            required 
+            disabled={loading}
           />
         </div>
         
-        <div className="form-group">
-          <label htmlFor="totalSupply">Total Tickets</label>
-          <input 
-            id="totalSupply" 
-            type="number" 
-            name="totalSupply" 
-            value={form.totalSupply} 
-            onChange={updateField} 
-            required 
-          />
-        </div>
-      </div>
-      
-      <div className="form-group">
-        <label htmlFor="concertImage">Concert Image</label>
-        <input 
-          id="concertImage" 
-          type="file" 
-          accept="image/*" 
-          onChange={handleImageChange} 
-          required 
-        />
-      </div>
-      
-      <button type="submit" disabled={loading || !isFormValid}>
-        {loading ? (
-          <span className="spinner"></span>
-        ) : (
-          "🚀 Launch Concert"
-        )}
-      </button>
-    </form>
+        <button type="submit" disabled={loading || !isFormValid}>
+          {loading ? (
+            <span className="button-loading">
+              <LoadingSpinner size="small" />
+              <span>Creating Concert...</span>
+            </span>
+          ) : (
+            "🚀 Launch Concert"
+          )}
+        </button>
+      </form>
+    </>
   );
 };
 

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useWeb3 } from "../contexts/Web3Context";
 import { toast } from "react-hot-toast";
+import LoadingSpinner from "./LoadingSpinner";
 import "./GoldRequirementSetter.css";
 
 const GoldRequirementSetter = () => {
@@ -29,10 +30,6 @@ const GoldRequirementSetter = () => {
         localStorage.setItem(`mosh-gold-req-${address}`, parsed.toString());
       }
       
-      // The gold requirement will be applied to all future events created by this artist
-      // No need for a separate contract function as the requirement is set per event
-      // during event creation
-      
       toast.success(`Gold status now requires ${parsed} concert${parsed === 1 ? '' : 's'}`);
     } catch (error) {
       console.error("Failed to update gold requirement:", error);
@@ -44,19 +41,26 @@ const GoldRequirementSetter = () => {
 
   return (
     <form onSubmit={handleSubmit} className="gold-requirement-form">
-      <span className="artist-name">{artistName}</span>
       <div className="input-group">
         <input
           type="number"
           min="0"
-          placeholder="Gold requirement"
+          placeholder="Enter number of concerts"
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           required
           disabled={isUpdating}
+          className="gold-input"
         />
-        <button type="submit" disabled={isUpdating}>
-          {isUpdating ? "Updating..." : "Update Requirement"}
+        <button type="submit" disabled={isUpdating} className="update-button">
+          {isUpdating ? (
+            <span className="button-loading">
+              <LoadingSpinner size="small" />
+              <span>Updating...</span>
+            </span>
+          ) : (
+            "Update Gold Requirement"
+          )}
         </button>
       </div>
     </form>

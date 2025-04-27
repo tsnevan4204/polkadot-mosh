@@ -14,6 +14,10 @@ body {
     color: #00ffe7;
     text-shadow: 0 0 6px #00ffe7, 0 0 12px #00ffe7, 0 0 20px #00ffe7;
     margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
 }
 
 .glow-text {
@@ -26,15 +30,25 @@ body {
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 1.5rem;
     justify-content: center;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 1rem;
+    border: 2px solid #ff00c8;
+    border-radius: 16px;
+    box-shadow: 0 0 15px rgba(255, 0, 200, 0.4);
+    background-color: rgba(0, 0, 0, 0.3);
 }
 
 .event-card {
+    position: relative; /* Added to contain the absolute banner */
     border: 2px solid #ff0090;
     background: rgba(255, 255, 255, 0.03);
     padding: 1.5rem;
     border-radius: 12px;
     box-shadow: 0 0 12px #ff0090;
     transition: transform 0.2s;
+    display: flex; /* Ensure consistent layout */
+    flex-direction: column; /* Ensure consistent layout */
 }
 
 .event-card:hover {
@@ -85,7 +99,8 @@ body {
     background: linear-gradient(90deg, rgba(255, 0, 200, 0.2), rgba(0, 255, 231, 0.2));
     border: 1px solid #ff00c8;
     padding: 1rem;
-    margin-bottom: 2rem;
+    margin: 0 auto 2rem auto;
+    max-width: 800px;
     border-radius: 8px;
     box-shadow: 0 0 15px rgba(255, 0, 200, 0.3);
     animation: glow 2s ease-in-out infinite alternate;
