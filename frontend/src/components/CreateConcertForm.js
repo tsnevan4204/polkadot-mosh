@@ -110,7 +110,7 @@ const CreateConcertForm = ({ onCreated }) => {
       <input type="datetime-local" name="date" value={form.date} onChange={updateField} required />
       <input type="text" name="location" placeholder="Location" value={form.location} onChange={updateField} required />
       <input type="text" name="artist" placeholder="Artist" value={form.artist} onChange={updateField} required />
-      <input type="number" name="price" placeholder="Ticket Price (ETH)" value={form.price} onChange={updateField} required />
+      <input type="number" name="price" placeholder="Ticket Price (DOT)" value={form.price} onChange={updateField} required />
       <input type="number" name="totalSupply" placeholder="Total Tickets" value={form.totalSupply} onChange={updateField} required />
       <input type="file" accept="image/*" onChange={handleImageChange} required />
       

@@ -9,93 +9,98 @@ const MarketplacePage = () => {
   const { eventContract, marketplaceContract } = useWeb3();
   const [eventData, setEventData] = useState(null);
   const [metadata, setMetadata] = useState({});
-  const [resaleListings, setResaleListings] = useState([]);
+  const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!eventContract || !marketplaceContract) return;
 
-    const fetchMarketplaceData = async () => {
+    const fetchData = async () => {
       setLoading(true);
       try {
         const event = await eventContract.events(eventId);
         setEventData(event);
 
-        const uri = event.metadataURI;
-        const metaRes = await fetch(uri.replace("ipfs://", "https://ipfs.io/ipfs/"));
+        const metaRes = await fetch(event.metadataURI.replace("ipfs://", "https://ipfs.io/ipfs/"));
         const meta = await metaRes.json();
         setMetadata(meta);
 
-        const listings = await marketplaceContract.getListingsForEvent(eventId);
-        setResaleListings(listings);
+        const listedTokenIds = await marketplaceContract.getListingsByEvent(eventId);
+        const listingData = await Promise.all(
+          listedTokenIds.map(async (tokenId) => {
+            const listing = await marketplaceContract.listings(tokenId);
+            return {
+              tokenId,
+              price: listing.price,
+              seller: listing.seller,
+            };
+          })
+        );
+        setListings(listingData);
       } catch (err) {
-        console.error("❌ Failed to fetch event/market data", err);
+        console.error("Marketplace load failed:", err);
       }
       setLoading(false);
     };
 
-    fetchMarketplaceData();
+    fetchData();
   }, [eventContract, marketplaceContract, eventId]);
 
-  const formatEther = (value) => `${ethers.utils.formatEther(value)} DOT`;
+  const formatEther = (value) => ethers.utils.formatEther(value);
+
+  const buyTicket = async (tokenId, price) => {
+    try {
+      const tx = await marketplaceContract.buyTicket(tokenId, { value: price });
+      await tx.wait();
+      alert("🎟️ Ticket purchased!");
+      window.location.reload();
+    } catch (err) {
+      console.error("Buy failed:", err);
+      alert("❌ Failed to buy ticket.");
+    }
+  };
 
   return (
     <div className="marketplace-container">
-      <h1 className="page-title">🎫 {metadata.name || "Event"} Marketplace</h1>
+      <h1 className="page-title">🎟 {metadata.name || "Event"} Marketplace</h1>
 
       {loading ? (
-        <p className="glow-text">Loading tickets...</p>
+        <p className="glow-text">Loading...</p>
       ) : (
         <>
           <div className="ticket-section">
-            <h2 className="glow-text">Primary Market</h2>
-            {eventData?.cancelled ? (
-              <p className="glow-text">❌ This event has been cancelled</p>
-            ) : (
-              (() => {
-                const location = metadata?.attributes?.find(attr => attr.trait_type === "Location")?.value || "Unknown Location";
-                const artist = metadata?.attributes?.find(attr => attr.trait_type === "Artist")?.value || "Unknown Artist";
-
-                return (
-                  <div className="ticket-card">
-                    <img
-                      src={metadata.image?.replace("ipfs://", "https://ipfs.io/ipfs/")}
-                      alt={metadata.name}
-                      className="ticket-image"
-                    />
-                    <div className="ticket-details">
-                      <h3>{metadata.name}</h3>
-                      <p>{metadata.description}</p>
-                      <p>📍 Location: {location}</p>
-                      <p>🎤 Artist: {artist}</p>
-                      <p>🧾 {formatEther(eventData.ticketPrice)}</p>
-                      <p>🎫 {eventData.ticketsSold.toString()} / {eventData.maxTickets.toString()} sold</p>
-                    </div>
-                  </div>
-                );
-              })()
-            )}
+            <h2 className="glow-text">Primary Info</h2>
+            <div className="ticket-card">
+              <img
+                src={metadata.image?.replace("ipfs://", "https://ipfs.io/ipfs/")}
+                alt={metadata.name}
+                className="ticket-image"
+              />
+              <div className="ticket-details">
+                <h3>{metadata.name}</h3>
+                <p>{metadata.description}</p>
+                <p>📍 {metadata.attributes?.find(a => a.trait_type === "Location")?.value || "Unknown"}</p>
+                <p>🎤 {metadata.attributes?.find(a => a.trait_type === "Artist")?.value || "Unknown"}</p>
+                <p>🎫 {eventData?.ticketsSold.toString()} / {eventData?.maxTickets.toString()} sold</p>
+              </div>
+            </div>
           </div>
 
           <div className="ticket-section">
             <h2 className="glow-text">Secondary Market</h2>
-            {resaleListings.length === 0 ? (
-              <p className="glow-text">No resale listings yet.</p>
+            {listings.length === 0 ? (
+              <p className="glow-text">No tickets listed yet.</p>
             ) : (
               <ul className="resale-listings">
-                {resaleListings.map((listing, i) => (
+                {listings.map((l, i) => (
                   <li key={i} className="resale-item">
-                    <p>🎟 Ticket #{listing.tokenId.toString()}</p>
-                    <p>💰 {formatEther(listing.price)}</p>
+                    <p>🎟️ Ticket #{l.tokenId.toString()}</p>
+                    <p>💰 {formatEther(l.price)} DOT</p>
                     <button
                       className="buy-button"
-                      onClick={() => {
-                        marketplaceContract.buyResaleTicket(eventId, listing.tokenId, {
-                          value: listing.price,
-                        });
-                      }}
+                      onClick={() => buyTicket(l.tokenId, l.price)}
                     >
-                      Buy Resale Ticket
+                      Buy
                     </button>
                   </li>
                 ))}

@@ -1,5 +1,5 @@
 {
-  "address": "0x162fB875b0f408F6d2402af1830d43f3f4d46E01",
+  "address": "0xD29875631d5560Ff89FDD2C08FE91d25830466e5",
   "abi": [
     {
       "inputs": [
@@ -83,6 +83,12 @@
           "indexed": true,
           "internalType": "uint256",
           "name": "tokenId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "eventId",
           "type": "uint256"
         },
         {
@@ -202,6 +208,11 @@
           "internalType": "uint256",
           "name": "price",
           "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "eventId",
+          "type": "uint256"
         }
       ],
       "stateMutability": "view",
@@ -215,6 +226,19 @@
           "internalType": "address",
           "name": "",
           "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "platformFeePercent",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
         }
       ],
       "stateMutability": "view",
