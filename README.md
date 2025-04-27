@@ -9,9 +9,9 @@ Mosh is a decentralized platform for fair concert ticketing. Built on the Polkad
 <ul>
   <li><strong>NFT Tickets:</strong> Each ticket is minted as an NFT, verifiable on-chain.</li>
   <li><strong>Proof of Fan-ness:</strong> Fans earn loyalty badges by attending events, unlocking early access to future tickets based on their tier.</li>
-  <li><strong>The Pit:</strong> A resale marketplace where 40% of profits go to the artist, 40% to the seller, and 20% to Mosh, reducing scalping incentives.</li>
+  <li>The resale marketplace where 40% of profits go to the artist, 40% to the seller, and 20% to Mosh, reducing scalping incentives.</li>
   <li><strong>Role Selection:</strong> Upon wallet connection, users choose Artist or Fan, each with a tailored dashboard.</li>
-  <li><strong>Security:</strong> Enforced resale royalties, wallet-based reputation, and gamified fan engagement deter bots and scalpers.</li>
+  <li>Enforced resale royalties, wallet-based reputation, and gamified fan engagement deter bots and scalpers for security.</li>
 </ul>
 
 <h2>Smart Contract Architecture</h2>
