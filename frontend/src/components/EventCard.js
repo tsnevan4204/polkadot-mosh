@@ -116,8 +116,8 @@ const EventCard = ({ event, onBuy, showBuyButton = true, isGuestUser = false }) 
         <div className="event-ticket-info">
           <p className="ticket-sold">🎫 {sold} / {supply} sold</p>
           
-          {/* Only show progress bar for connected users, not for guests */}
-          {!isGuestUser && goldRequirement > 0 && (
+          {/* Only show progress bar for connected fans, not for guests */}
+          {role === "fan" && goldRequirement > 0 && (
             <div className="progress-bar-container">
               <div className="progress-bar">
                 <div
