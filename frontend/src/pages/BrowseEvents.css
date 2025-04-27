@@ -23,7 +23,7 @@ body {
 
 .event-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 1.5rem;
     justify-content: center;
 }
@@ -78,4 +78,31 @@ body {
     color: #aaa;
     cursor: not-allowed;
     box-shadow: none;
+}
+
+/* Guest mode styling */
+.guest-banner {
+    background: linear-gradient(90deg, rgba(255, 0, 200, 0.2), rgba(0, 255, 231, 0.2));
+    border: 1px solid #ff00c8;
+    padding: 1rem;
+    margin-bottom: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(255, 0, 200, 0.3);
+    animation: glow 2s ease-in-out infinite alternate;
+}
+
+.guest-banner p {
+    color: #ffffff;
+    font-size: 1.1rem;
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+    margin: 0;
+}
+
+@keyframes glow {
+    from {
+        box-shadow: 0 0 10px rgba(255, 0, 200, 0.3);
+    }
+    to {
+        box-shadow: 0 0 20px rgba(0, 255, 231, 0.5);
+    }
 }

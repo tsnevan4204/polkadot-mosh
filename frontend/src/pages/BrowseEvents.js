@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useEvents } from "../hooks/useEvents";
 import { useWeb3 } from "../contexts/Web3Context";
 import { toast } from "react-hot-toast";
@@ -9,9 +9,14 @@ const BrowseEvents = () => {
   const { events, loading, refetch } = useEvents();
   const { eventContract, address } = useWeb3();
   const [txPending, setTxPending] = useState(false);
+  const [isGuestUser, setIsGuestUser] = useState(true);
+
+  // Check if the user has a wallet connected
+  useEffect(() => {
+    setIsGuestUser(!address);
+  }, [address]);
 
   const buyTicket = async (eventId, price) => {
-    console.log(eventContract);
     if (!eventContract || !address) return alert("Connect wallet first!");
 
     try {
@@ -30,8 +35,14 @@ const BrowseEvents = () => {
 
   return (
     <div className="browse-events-container">
-      {loading ? (
-        <p className="glow-text">⚡ Syncing events...</p>
+      <h1 className="neon-title">🎸 Upcoming Concerts</h1>
+      
+      {isGuestUser ? (
+        <div className="guest-banner">
+          <p>Connect your wallet to buy tickets and access exclusive features! 🎟️</p>
+        </div>
+      ) : loading ? (
+        <p className="glow-text">⚡ Loading events...</p>
       ) : events.length === 0 ? (
         <p className="glow-text">🚫 No events yet. You rebel, make one!</p>
       ) : (
@@ -42,6 +53,21 @@ const BrowseEvents = () => {
               event={e}
               onBuy={buyTicket}
               showBuyButton={!txPending && e.ticketsSold < e.maxTickets}
+              isGuestUser={false}
+            />
+          ))}
+        </div>
+      )}
+      
+      {isGuestUser && events.length > 0 && (
+        <div className="event-grid">
+          {events.map((e, i) => (
+            <EventCard
+              key={i}
+              event={e}
+              onBuy={buyTicket}
+              showBuyButton={false}
+              isGuestUser={true}
             />
           ))}
         </div>

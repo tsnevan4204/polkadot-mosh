@@ -229,6 +229,9 @@ export const Web3Provider = ({ children }) => {
       // Store role in localStorage (just for UI purposes)
       localStorage.setItem(`mosh-role-${address}`, "musician");
       
+      // Store gold requirement in localStorage to persist across sessions
+      localStorage.setItem(`mosh-gold-req-${address}`, goldReq.toString());
+      
       // Cache the profile
       setArtistProfiles(prev => ({
         ...prev,
@@ -245,11 +248,54 @@ export const Web3Provider = ({ children }) => {
     }
   };
 
+  // Update gold requirement in user profile and cache
+  const updateGoldRequirement = (value) => {
+    setGoldRequirement(value);
+    
+    // Update cache so future events can access the latest requirement
+    if (address && artistName) {
+      setArtistProfiles(prev => ({
+        ...prev,
+        [address]: { 
+          ...prev[address],
+          goldRequirement: value 
+        }
+      }));
+      
+      // Store in localStorage to persist across sessions
+      localStorage.setItem(`mosh-gold-req-${address}`, value.toString());
+    }
+  };
+
   useEffect(() => {
     if (window.ethereum && window.ethereum.selectedAddress) {
       connectWallet();
     }
   }, []);
+
+  // Load gold requirement from localStorage on initial load
+  useEffect(() => {
+    if (address && role === "musician") {
+      const savedGoldReq = localStorage.getItem(`mosh-gold-req-${address}`);
+      if (savedGoldReq) {
+        const parsedReq = parseInt(savedGoldReq);
+        if (!isNaN(parsedReq)) {
+          setGoldRequirement(parsedReq);
+          
+          // Update cache
+          if (artistName) {
+            setArtistProfiles(prev => ({
+              ...prev,
+              [address]: { 
+                ...prev[address],
+                goldRequirement: parsedReq 
+              }
+            }));
+          }
+        }
+      }
+    }
+  }, [address, role, artistName]);
 
   // If artist form needs to be displayed, render it as a modal overlay
   if (showArtistForm) {
@@ -276,7 +322,7 @@ export const Web3Provider = ({ children }) => {
         role,
         artistName,
         goldRequirement,
-        setGoldRequirement,
+        setGoldRequirement: updateGoldRequirement,
         getArtistName,
         fetchArtistProfile,
       }}

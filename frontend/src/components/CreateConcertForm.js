@@ -88,16 +88,22 @@ const CreateConcertForm = ({ onCreated }) => {
       const metadataURI = await uploadToPinata();
       const eventDateTimestamp = Math.floor(eventDate.getTime() / 1000);
 
-      // Always have a valid goldRequirement (default is already set in context)
+      // Get the latest gold requirement from context
+      // This ensures that the most recently updated gold requirement is used
+      const currentGoldRequirement = goldRequirement;
+      
+      toast.loading("Creating your concert...");
+      
       const tx = await eventContract.createEvent(
         metadataURI,
         ethers.utils.parseEther(form.price.toString()),
         parseInt(form.totalSupply),
         eventDateTimestamp,
-        goldRequirement
+        currentGoldRequirement
       );
       await tx.wait();
 
+      toast.dismiss();
       toast.success("Concert created!");
       setForm({ name: "", description: "", price: "", totalSupply: "", date: "", location: "" });
       setImage(null);

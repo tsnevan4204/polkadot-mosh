@@ -178,6 +178,26 @@
     box-shadow: 0 0 16px #ff00c8;
 }
 
+.connect-wallet-button {
+    margin-top: 0.6rem;
+    font-size: 0.8rem;
+    padding: 0.5rem;
+    font-weight: bold;
+    background: linear-gradient(45deg, #ff00c8, #7928ca);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 0 10px #ff00c8;
+    transition: all 0.3s;
+}
+
+.connect-wallet-button:hover {
+    background: linear-gradient(45deg, #ff33d1, #8f3dd1);
+    box-shadow: 0 0 16px #ff00c8;
+    transform: translateY(-2px);
+}
+
 .cancelled-banner {
     color: #ff0073;
     font-size: 0.75rem;

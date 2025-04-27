@@ -4,12 +4,13 @@ import { toast } from "react-hot-toast";
 import "./GoldRequirementSetter.css";
 
 const GoldRequirementSetter = () => {
-  const { goldRequirement, setGoldRequirement, role, address, artistName } = useWeb3();
+  const { goldRequirement, setGoldRequirement, role, address, artistName, eventContract } = useWeb3();
   const [inputValue, setInputValue] = useState(goldRequirement || 0);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   if (role !== "musician") return null; // Only musicians see this
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const parsed = parseInt(inputValue);
     if (isNaN(parsed) || parsed < 0) {
@@ -17,15 +18,28 @@ const GoldRequirementSetter = () => {
       return;
     }
     
-    // Update in context
-    setGoldRequirement(parsed);
+    setIsUpdating(true);
     
-    // Also save to localStorage
-    if (address) {
-      localStorage.setItem(`mosh-gold-req-${address}`, parsed.toString());
+    try {
+      // Update in context
+      setGoldRequirement(parsed);
+      
+      // Also save to localStorage for UI purposes
+      if (address) {
+        localStorage.setItem(`mosh-gold-req-${address}`, parsed.toString());
+      }
+      
+      // The gold requirement will be applied to all future events created by this artist
+      // No need for a separate contract function as the requirement is set per event
+      // during event creation
+      
+      toast.success(`Gold status now requires ${parsed} concert${parsed === 1 ? '' : 's'}`);
+    } catch (error) {
+      console.error("Failed to update gold requirement:", error);
+      toast.error("Failed to update gold requirement");
+    } finally {
+      setIsUpdating(false);
     }
-    
-    toast.success(`Gold status now requires ${parsed} concert${parsed === 1 ? '' : 's'}`);
   };
 
   return (
@@ -39,8 +53,11 @@ const GoldRequirementSetter = () => {
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           required
+          disabled={isUpdating}
         />
-        <button type="submit">Update Requirement</button>
+        <button type="submit" disabled={isUpdating}>
+          {isUpdating ? "Updating..." : "Update Requirement"}
+        </button>
       </div>
     </form>
   );

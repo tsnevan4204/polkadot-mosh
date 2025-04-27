@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useWeb3 } from "../contexts/Web3Context";
 import "./EventCard.css";
 
-const EventCard = ({ event, onBuy, showBuyButton = true }) => {
+const EventCard = ({ event, onBuy, showBuyButton = true, isGuestUser = false }) => {
   const navigate = useNavigate();
   const { getArtistName } = useWeb3();
   const [artistName, setArtistName] = useState("Unknown Artist");
@@ -72,6 +72,10 @@ const EventCard = ({ event, onBuy, showBuyButton = true }) => {
   const supply = maxTickets ? maxTickets.toString() : "?";
   const soldOut = ticketsSold && maxTickets && ticketsSold.gte(maxTickets);
 
+  const handleConnectWallet = () => {
+    alert("Please connect your wallet to buy tickets or access the marketplace!");
+  };
+
   return (
     <div className="event-card">
       <img src={imageURL} alt={name} className="event-image" />
@@ -84,8 +88,9 @@ const EventCard = ({ event, onBuy, showBuyButton = true }) => {
         <p className="date-name">🗓 {formattedDate}</p>
         <div className="event-ticket-info">
           <p className="ticket-sold">🎫 {sold} / {supply} sold</p>
-          {/* Only show progress bar for fans, not musicians */}
-          {attendedCount !== undefined && loyaltyProgress !== undefined && goldRequirement > 0 && (
+          
+          {/* Only show progress bar for connected users, not for guests */}
+          {!isGuestUser && attendedCount !== undefined && loyaltyProgress !== undefined && goldRequirement > 0 && (
             <div className="progress-bar-container">
               <div className="progress-bar">
                 <div
@@ -102,14 +107,14 @@ const EventCard = ({ event, onBuy, showBuyButton = true }) => {
 
         <div className="price-section">
           💰 <span className="price-text">{formattedPrice}</span>
-          {/* Only show gold badge for fans */}
-          {isGoldHolder && attendedCount !== undefined && <span className="loyalty-badge">GOLD</span>}
+          {/* Only show gold badge for connected users, not for guests */}
+          {!isGuestUser && isGoldHolder && attendedCount !== undefined && <span className="loyalty-badge">GOLD</span>}
         </div>
 
         {cancelled && <p className="cancelled-banner">❌ Cancelled</p>}
 
-        {/* BUY BUTTON under price */}
-        {showBuyButton && !cancelled && (
+        {/* BUY BUTTON - Only shown for connected users, not for guests */}
+        {showBuyButton && !cancelled && !isGuestUser && (
           <button
             className="buy-button"
             onClick={() => onBuy?.(id, price)}
@@ -119,13 +124,22 @@ const EventCard = ({ event, onBuy, showBuyButton = true }) => {
           </button>
         )}
 
-        {/* Resell Button always shown */}
-        <button
-          className="resell-button"
-          onClick={() => navigate(`/marketplace/${id}`)}
-        >
-          🔁 View Marketplace
-        </button>
+        {/* For guests, show a connect wallet prompt instead of marketplace/buy buttons */}
+        {isGuestUser ? (
+          <button 
+            className="connect-wallet-button"
+            onClick={handleConnectWallet}
+          >
+            🔌 Connect Wallet
+          </button>
+        ) : (
+          <button
+            className="resell-button"
+            onClick={() => navigate(`/marketplace/${id}`)}
+          >
+            🔁 View Marketplace
+          </button>
+        )}
       </div>
     </div>
   );
