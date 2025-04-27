@@ -48,3 +48,5 @@ Mosh aims to democratize ticketing for indie artists and fans, cutting out centr
 Ticket Smart Contract - https://moonbase.moonscan.io/address/0xF32810D7F67507006726aE67055aB8fcD6cD3C3B
 EventManager Smart Contract - https://moonbase.moonscan.io/address/0x0F708a3Bc9B5CDa7952317740C9d01830A8e5188
 Marketplace Smart Contract - https://moonbase.moonscan.io/address/0xA6d76B9694964BDF0239EB05AdAd80f7344EAd54
+
+https://youtu.be/d_7bKOSgQl8
