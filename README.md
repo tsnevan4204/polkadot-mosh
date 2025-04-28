@@ -4,7 +4,7 @@
 <p>
 Mosh is a decentralized platform for fair concert ticketing. Built on the Polkadot parachain network with Solidity smart contracts and a React frontend, Mosh uses NFTs to represent tickets and loyalty badges, ensuring real fans, not bots or scalpers, get priority access.
 </p>
-
+<a href="https://youtu.be/d_7bKOSgQl8"> Demo Video </a>
 <h2>How It Works</h2>
 <ul>
   <li><strong>NFT Tickets:</strong> Each ticket is minted as an NFT, verifiable on-chain.</li>
@@ -49,4 +49,3 @@ Ticket Smart Contract - https://moonbase.moonscan.io/address/0xF32810D7F67507006
 EventManager Smart Contract - https://moonbase.moonscan.io/address/0x0F708a3Bc9B5CDa7952317740C9d01830A8e5188
 Marketplace Smart Contract - https://moonbase.moonscan.io/address/0xA6d76B9694964BDF0239EB05AdAd80f7344EAd54
 
-https://youtu.be/d_7bKOSgQl8
