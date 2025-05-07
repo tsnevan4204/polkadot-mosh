@@ -220,14 +220,16 @@ Nevan Sujit is an undergrad student at the University of Pennsylvania studying M
 ## 🚀 Future Plans
 
 * Continue development post-grant
-* Explore VC or other grant funding
+* Additional Funding Plans
+** Pre‑Seed VC & Angels – We will secure angel checks and are in advanced discussions with tier‑one VCs for a pre‑seed round.
+** Grants & Ecosystem Programs – We will apply for Polkadot ecosystem grants (beyond Fast‑Grant) and pursue relevant accelerator support.
+
 * Expand Mosh across Polkadot parachains (ink!)
 
 ---
 
 ## ℹ️ Additional Information
 
-* Multiple hackathon awards
 * All work original to this team
 * No other current funding
 
