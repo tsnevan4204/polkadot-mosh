@@ -221,13 +221,16 @@ Nevan Sujit is an undergrad student at the University of Pennsylvania studying M
 * Continue development post-grant
 
   &nbsp;&nbsp;&nbsp;&nbsp;• Development of an initial platform will be complete by the end of this grant, but we hope to both add more features and make the platform more robust.
+
   &nbsp;&nbsp;&nbsp;&nbsp;• As we scale our platform, we hope to develop a custom parachain for our platform to use that will optimize its needs.
+
   &nbsp;&nbsp;&nbsp;&nbsp;• We want to create further loyalty features outside of the ones in development roadmap to expand retention of fans on platform.
 
   &nbsp;&nbsp;&nbsp;&nbsp;• We will apply for Polkadot ecosystem grants (beyond Fast‑Grant) and pursue relevant accelerator support.
 * 💰 Additional Funding Strategy
-  
+
   &nbsp;&nbsp;&nbsp;&nbsp;• We will secure angel checks and will dicuss with VCs for a pre‑seed round.
+
   &nbsp;&nbsp;&nbsp;&nbsp;• We will apply for Polkadot ecosystem grants (beyond Fast‑Grant) and pursue relevant accelerator support.
 
 ---
