@@ -160,29 +160,43 @@ Nevan Sujit is an undergrad student at the University of Pennsylvania studying M
 
 (https://github.com/tsnevan4204/polkadot-mosh)
 
-* **Backend**: Hardhat-based Solidity smart contracts
-* **Frontend**: React + Tailwind
-* **Deployment**: EventManager, TicketNFT, LoyaltyBadge live on Moonbeam testnet
-* **Demo Video**: [Watch](https://youtu.be/d_7bKOSgQl8)
+### 📦 Project Structure
 
----
+**backend/**: Contains the full suite of Solidity smart contracts, deployed using Hardhat, including:
 
-## 💡 Technical Features
+* `EventManager.sol`: Manages event creation, ticket sales, cancellations, and ETH distribution.
+* `TicketNFT.sol`: ERC721 contract for ticket NFTs.
+* `LoyaltyBadge.sol`: Issues NFT badges for recurring fans.
+* `test/`: Mocha-based unit tests for smart contract functionality.
+* `scripts/`: Deployment and event scripts.
 
-* EVM-compatible deployment on Moonbeam
-* NFT ticketing with ERC721
-* Loyalty badges with attendance tracking
-* Royalty-split resale logic
-* Metadata hosting on IPFS
+**frontend/**: A React-based web application that interacts with the deployed contracts via Ethers.js.
 
----
+* Key UI features include event browsing, ticket purchase/resale, and role-based dashboards for Fans vs Event Hosts.
+* Styled with a techno-futuristic theme using Tailwind CSS.
 
-## ⚙️ Smart Contract Stack
+### 💡 Technical Features
 
-* Solidity + OpenZeppelin
-* Hardhat
-* Ethers.js
-* Moonbeam parachain
+* Built on Moonbeam (Polkadot Ecosystem) for EVM compatibility and Polkadot-native security.
+* **NFT-based Ticketing**: Tickets are ERC721 tokens with on-chain metadata and enforced royalty logic.
+* **Proof of Fan-Ness**: Fans earn NFT loyalty badges through event attendance.
+* **Smart Contract Resale Rules**:
+
+  * 40% of resale profits → Artist
+  * 40% → Seller
+  * 20% → Mosh
+* **Role Selection and Wallet Integration**:
+
+  * Upon connecting a wallet, users can register as a Fan or Event Manager.
+* **Pinata + IPFS**: Used for storing and retrieving event metadata and ticket images.
+
+### ⚙️ Smart Contract Stack
+
+* **Solidity + OpenZeppelin** for secure ERC721 standards
+* **Hardhat** for compilation, testing, and deployment
+* **Ethers.js** for frontend-contract communication
+* **Moonbeam** for EVM compatibility, fast finality, and scalable NFT operations
+
 
 ---
 
