@@ -90,6 +90,12 @@ Upon wallet connection, users register as either:
 * EVM-compatible
 * High throughput and real-time minting
 
+### Mockups / MVP:
+
+**Demo Video**: [Watch the demo](https://youtu.be/d_7bKOSgQl8)
+
+<img width="632" alt="Screenshot 2025-05-06 at 9 16 14 PM" src="https://github.com/user-attachments/assets/bff3cd07-b6a3-497d-8b18-8527ec750829" />
+
 ### Data Models / API Specifications
 
 Frontend API (sample payloads for contract calls):
