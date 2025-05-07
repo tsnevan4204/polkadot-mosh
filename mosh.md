@@ -236,11 +236,17 @@ Nevan Sujit is an undergrad student at the University of Pennsylvania studying M
     • Verification: Unit tests for UserOperation encoding, bundler integration, Paymaster-subsidized flows, and wallet creation logic.
 
 * **2. Mobile App Development**
+
   • Build a React Native mobile version of the Mosh frontend for iOS and Android.
+
   • Integrate account abstraction-compatible wallets for seamless social login.
+
   • Implement QR code-based ticket scanning for event access.
+
   • Provide an in-app dashboard to manage ticket purchases, loyalty badges, and resale listings.
+
   • Optimize performance and responsiveness across mobile devices.
+
   • Verification: UI tests on multiple devices, interaction tracking, and login-to-purchase performance benchmarks.
 
 ### 💰 Budget Breakdown
