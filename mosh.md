@@ -124,6 +124,10 @@ function listTicket(uint256 tokenId, uint256 price, uint256 eventId) external;
 
 Our product is specifically designed for concert ticketing and not events in general. By the end of the three months, we hope to have our product deployed, and while we will be promoting our platform to local musicians in the area, we have no expectations of how many artists or fans will be on our platform.
 
+### Go-to-market strategy
+
+![Screenshot 2025-05-06 at 9 26 45 PM](https://github.com/user-attachments/assets/f508a8b6-e20c-4c16-8da3-f868878ae7b1)
+
 ---
 
 ## 🤌 Ecosystem Fit
