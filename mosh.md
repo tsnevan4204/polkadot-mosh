@@ -122,7 +122,7 @@ function listTicket(uint256 tokenId, uint256 price, uint256 eventId) external;
 
 ### Limitations
 
-Mosh is currently optimized for concert ticketing only. While the platform is functional and will be promoted to local artists, we have no guaranteed user base.
+Our product is specifically designed for concert ticketing and not events in general. By the end of the three months, we hope to have our product deployed, and while we will be promoting our platform to local musicians in the area, we have no expectations of how many artists or fans will be on our platform.
 
 ---
 
@@ -147,9 +147,18 @@ Mosh is currently optimized for concert ticketing only. While the platform is fu
 * [Nevan Sujit](https://www.linkedin.com/in/nevan-sujit/) – [https://github.com/tsnevan4204](https://github.com/tsnevan4204)
 * [Yuvraj Lakhotia](https://www.linkedin.com/in/yuvraj-lakhotia) – [https://github.com/yuviji](https://github.com/yuviji)
 
+### Team's experience
+**Nevan Sujit:**
+Nevan Sujit is an undergrad student at the University of Pennsylvania studying Math and Electrical Engineering in the Vagelos Program for Energy Research. He is on the Penn Blockchain Club, where he has particular experience with creating smart Solidity Contracts and the ReactJS frontend framework. He has a lot of hacking experience coming from the numerous hackathons he’s competed and won at, building projects like a documentation generation tool and consumer goods bundler deep learning model.
+
+
+**Yuvraj Lakhotia:**
+
 ---
 
 ## 📊 Development Status
+
+(https://github.com/tsnevan4204/polkadot-mosh)
 
 * **Backend**: Hardhat-based Solidity smart contracts
 * **Frontend**: React + Tailwind
