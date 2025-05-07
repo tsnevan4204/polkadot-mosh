@@ -124,10 +124,6 @@ function listTicket(uint256 tokenId, uint256 price, uint256 eventId) external;
 
 Our product is specifically designed for concert ticketing and not events in general. By the end of the three months, we hope to have our product deployed, and while we will be promoting our platform to local musicians in the area, we have no expectations of how many artists or fans will be on our platform.
 
-### Go-to-market strategy
-
-![Screenshot 2025-05-06 at 9 26 45 PM](https://github.com/user-attachments/assets/f508a8b6-e20c-4c16-8da3-f868878ae7b1)
-
 ---
 
 ## 🤌 Ecosystem Fit
@@ -219,14 +215,20 @@ Nevan Sujit is an undergrad student at the University of Pennsylvania studying M
 
 ## 🚀 Future Plans
 
+* Go-to-market Strategy
+  ![Screenshot 2025-05-06 at 9 26 45 PM](https://github.com/user-attachments/assets/f508a8b6-e20c-4c16-8da3-f868878ae7b1)
+
 * Continue development post-grant
-* 💰 Additional Funding Strategy
-  
-  &nbsp;&nbsp;&nbsp;&nbsp;• We will secure angel checks and are in advanced discussions with tier‑one VCs for a pre‑seed round.
+
+  &nbsp;&nbsp;&nbsp;&nbsp;• Development of an initial platform will be complete by the end of this grant, but we hope to both add more features and make the platform more robust.
+  &nbsp;&nbsp;&nbsp;&nbsp;• As we scale our platform, we hope to develop a custom parachain for our platform to use that will optimize its needs.
+  &nbsp;&nbsp;&nbsp;&nbsp;• We want to create further loyalty features outside of the ones in development roadmap to expand retention of fans on platform.
 
   &nbsp;&nbsp;&nbsp;&nbsp;• We will apply for Polkadot ecosystem grants (beyond Fast‑Grant) and pursue relevant accelerator support.
-
-* Expand Mosh across Polkadot parachains (ink!)
+* 💰 Additional Funding Strategy
+  
+  &nbsp;&nbsp;&nbsp;&nbsp;• We will secure angel checks and will dicuss with VCs for a pre‑seed round.
+  &nbsp;&nbsp;&nbsp;&nbsp;• We will apply for Polkadot ecosystem grants (beyond Fast‑Grant) and pursue relevant accelerator support.
 
 ---
 
