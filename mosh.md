@@ -1,3 +1,4 @@
+<img width="477" alt="Screenshot 2025-05-06 at 9 15 29 PM" src="https://github.com/user-attachments/assets/cbfc62fd-b4bc-49dd-a52c-fa857a7a13a1" />
 # Mosh
 
 ## 🌟 Project Overview
@@ -28,6 +29,7 @@ Our project, Mosh, is built on **Moonbeam**, a Polkadot parachain, allowing us t
 
 Moonbeam’s native OpenZeppelin support, efficient gas metering, 6-second block times, and low-latency finality were essential for our platform, which involves minting and transferring thousands of NFT-based tickets and loyalty badges during live ticket drops.
 
+
 By building on Moonbeam, we remain fully within the Polkadot ecosystem, benefiting from the relay chain’s shared security model. Polkadot’s multichain architecture, composability, and high transaction throughput uniquely enabled us to create a decentralized ticketing platform that delivers the scalability, speed, and integrity that traditional EVM networks can't match.
 
 In the future, we also hope to explore **ink! smart contracts** to expand beyond Moonbeam.
@@ -42,9 +44,9 @@ Both of us love music and concerts, as we play instruments and DJ in our free ti
 
 ### Documentation of Core Components, Protocols, Architecture
 
-#### Overview
+#### Tech Stack
 
-Mosh is a decentralized concert ticketing platform built on the Moonbeam parachain within the Polkadot ecosystem. It leverages smart contract-enforced logic for NFT-based ticket issuance, resale governance, and loyalty rewards.
+![Screenshot 2025-05-06 at 9 15 08 PM](https://github.com/user-attachments/assets/066380f5-9265-4b65-b153-198af0849972)
 
 #### Protocol Architecture
 
