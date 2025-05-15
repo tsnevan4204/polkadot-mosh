@@ -165,8 +165,8 @@ Nevan Sujit is an undergrad student at the University of Pennsylvania studying M
 **backend/**: Contains the full suite of Solidity smart contracts, deployed using Hardhat, including:
 
 * `EventManager.sol`: Manages event creation, ticket sales, cancellations, and ETH distribution.
-* `TicketNFT.sol`: ERC721 contract for ticket NFTs.
-* `LoyaltyBadge.sol`: Issues NFT badges for recurring fans.
+* `Ticket.sol`: ERC721 contract for ticket NFTs.
+* `Marketplace.sol`: Sets up Marketplace for reselling.
 * `test/`: Mocha-based unit tests for smart contract functionality.
 * `scripts/`: Deployment and event scripts.
 
@@ -265,11 +265,12 @@ Nevan Sujit is an undergrad student at the University of Pennsylvania studying M
 
 ### 💰 Budget Breakdown
 
-| Milestone | Deliverables                                   | Cost (USD)   | Estimated Completion |
-| --------- | ---------------------------------------------- | ------------ | -------------------- |
-| 1         | 0a–0d + Deliverable 1 (Proof of Fan-ness + AA) | \$5,000      | 1.5 months           |
-| 2         | Deliverable 2 (Mobile App Development)         | \$5,000      | 1.5 months           |
-| **Total** |                                                | **\$10,000** | **3 months**         |
+| Milestone | Deliverables                                      | Cost (USD)   | Estimated Completion |
+| --------- | ------------------------------------------------- | ------------ | -------------------- |
+| 1         | 0a–0d + Deliverable 1 (Account Abstraction)       | \$2,000      | 1 month              |
+| 2         | Deliverable 2 (Mobile App Development)            | \$4,000      | 1.5 months           |
+| 3         | Deliverable 3 (Proof-of-Fan Verification System)  | \$4,000      | 1.5 months           |
+| **Total** |                                                   | **\$10,000** | **3 months**         |
 
 ---
 
