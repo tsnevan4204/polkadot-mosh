@@ -98,7 +98,7 @@ Upon wallet connection, users register as either:
 
 ### Data Models / API Specifications
 
-Frontend API (sample payloads for contract calls):
+Frontend data structure (sample payloads for contract calls):
 
 ```json
 {
