@@ -219,35 +219,53 @@ Nevan Sujit is an undergrad student at the University of Pennsylvania studying M
 * **0d. Article**
   • Publish a technical blog post detailing architecture, implementation, and test outcomes—targeting Polkadot communities.
 
-* **1. Proof of Fan-ness features and Account Abstraction**
-  • EVM contract enhancements to track and reward verified fan behavior:
+### *1. Account Abstraction Integration*
+
+• **Smart contract and frontend integration using ERC-4337-compatible wallets** (e.g., Biconomy, ZeroDev).
+
+  * Users sign transactions using social logins or passkeys, and interactions are wrapped into `UserOperations` relayed by a bundler to the entry point contract.
+  
+  * Session keys support limited-time interactions (e.g., buying/reselling tickets) without reauthentication.
+
+• **Verification**: Unit tests for `UserOperation` encoding, bundler integration, Paymaster-subsidized flows, and wallet creation logic.
+
+---
+
+### *2. Mobile App Development*
+
+• Build a **React Native mobile version** of the Mosh frontend for iOS and Android.
+
+• Integrate account abstraction-compatible wallets for seamless social login.
+
+• Implement **QR code-based ticket scanning** for event access.
+
+• Provide an in-app dashboard to manage ticket purchases, loyalty badges, and resale listings.
+
+• Optimize performance and responsiveness across mobile devices.
+
+• **Verification**: UI tests on multiple devices, interaction tracking, and login-to-purchase performance benchmarks.
+
+---
+
+### *3. Proof-of-Fan Verification System (Spotify Integration)*
+
+• **Spotify API integration (off-chain)** to fetch user's top artists and listening history, and cryptographically sign that data for proof verification:
+
+  * Badge-earning eligibility is verified by matching on-chain artist support with off-chain listening data.
+  
+  * Serverless verifier function relays verified Spotify credentials into badge minting contract.
+
+• **EVM contract enhancements to track and reward verified fan behavior**:
 
   * Mint loyalty badge NFTs based on on-chain event attendance.
+  
   * Enforce tiered access to ticket drops based on badge level (e.g., Gold Fans get early access).
-    • Spotify API integration (off-chain) to fetch user's top artists and listening history, and cryptographically sign that data for proof verification:
-  * Badge-earning eligibility is verified by matching on-chain artist support with off-chain listening data.
-  * Serverless verifier function relays verified Spotify credentials into badge minting contract.
-    • LoyaltyScore contract to manage fan metadata and loyalty points (e.g., based on events attended, music engagement, and social actions).
-    • Dashboard to view and upgrade loyalty badge tiers.
-    • Verification: Unit tests for badge minting logic, Spotify attestation verification, tier-gating of event access, and UI tests for user badge dashboard.
-  * Smart contract and frontend integration using account abstraction via ERC-4337-compatible wallets (e.g., Biconomy, ZeroDev).
-    • Users sign transactions using social logins or passkeys, and interactions are wrapped into UserOperations relayed by a bundler to the entry point contract.
-    • Session keys support limited-time interactions (e.g., buying/reselling tickets) without reauthentication.
-    • Verification: Unit tests for UserOperation encoding, bundler integration, Paymaster-subsidized flows, and wallet creation logic.
 
-* **2. Mobile App Development**
+• **LoyaltyScore contract** to manage fan metadata and loyalty points (e.g., based on events attended, music engagement, and social actions).
 
-  • Build a React Native mobile version of the Mosh frontend for iOS and Android.
+• **Dashboard** to view and upgrade loyalty badge tiers.
 
-  • Integrate account abstraction-compatible wallets for seamless social login.
-
-  • Implement QR code-based ticket scanning for event access.
-
-  • Provide an in-app dashboard to manage ticket purchases, loyalty badges, and resale listings.
-
-  • Optimize performance and responsiveness across mobile devices.
-
-  • Verification: UI tests on multiple devices, interaction tracking, and login-to-purchase performance benchmarks.
+• **Verification**: Unit tests for badge minting logic, Spotify attestation verification, tier-gating of event access, and UI tests for user badge dashboard.
 
 ### 💰 Budget Breakdown
 
