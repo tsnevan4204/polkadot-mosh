@@ -229,8 +229,6 @@ Nevan Sujit is an undergrad student at the University of Pennsylvania studying M
 
 • **Verification**: Unit tests for `UserOperation` encoding, bundler integration, Paymaster-subsidized flows, and wallet creation logic.
 
----
-
 ### *2. Mobile App Development*
 
 • Build a **React Native mobile version** of the Mosh frontend for iOS and Android.
@@ -244,8 +242,6 @@ Nevan Sujit is an undergrad student at the University of Pennsylvania studying M
 • Optimize performance and responsiveness across mobile devices.
 
 • **Verification**: UI tests on multiple devices, interaction tracking, and login-to-purchase performance benchmarks.
-
----
 
 ### *3. Proof-of-Fan Verification System (Spotify Integration)*
 
