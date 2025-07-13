@@ -1,20 +1,21 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { ethers } from "ethers";
+import { usePrivy, useWallets } from "@privy-io/react-auth";
 import Ticket from "../abis/Ticket.json";
 import EventManager from "../abis/EventManager.json";
 import Marketplace from "../abis/Marketplace.json";
-import { toast } from "react-hot-toast";
 import ArtistRegistrationForm from "../components/ArtistRegistrationForm";
 import RoleSelector from "../components/RoleSelector";
 import LoadingSpinner from "../components/LoadingSpinner";
 import axios from "axios";
-
-const PINATA_API_KEY = "3bf4164172fae7b68de3";
-const PINATA_SECRET = "32288745dd22dabdcc87653918e33841ccfcfbd45c43a89709f873aedcc7c9fe";
+import { toast } from "react-hot-toast";
 
 const Web3Context = createContext();
 
 export const Web3Provider = ({ children }) => {
+  const { ready, authenticated, login, logout, user } = usePrivy();
+  const { wallets } = useWallets();
+
   const [provider, setProvider] = useState(null);
   const [signer, setSigner] = useState(null);
   const [address, setAddress] = useState(null);
@@ -26,123 +27,229 @@ export const Web3Provider = ({ children }) => {
   const [showArtistForm, setShowArtistForm] = useState(false);
   const [showRoleSelector, setShowRoleSelector] = useState(false);
   const [tempUserAddress, setTempUserAddress] = useState(null);
-  
-  // Artist specific states
   const [artistName, setArtistName] = useState(null);
   const [goldRequirement, setGoldRequirement] = useState(0);
-  // Cache for artist profiles (address -> {name, goldRequirement})
   const [artistProfiles, setArtistProfiles] = useState({});
-
   const [isConnecting, setIsConnecting] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState("");
 
-  const connectWallet = async () => {
-    if (!window.ethereum) {
-      alert("Please install MetaMask!");
-      return;
-    }
+  const PINATA_API_KEY = "3bf4164172fae7b68de3";
+  const PINATA_SECRET =
+    "32288745dd22dabdcc87653918e33841ccfcfbd45c43a89709f873aedcc7c9fe";
 
-    try {
-      setIsConnecting(true);
-      setLoadingMessage("Connecting to your wallet...");
-      
-      const _provider = new ethers.providers.Web3Provider(window.ethereum);
-      await _provider.send("eth_requestAccounts", []);
-      
-      setLoadingMessage("Getting account information...");
-      const _signer = _provider.getSigner();
-      const _address = await _signer.getAddress();
-      const _network = await _provider.getNetwork();
-      console.log("🛰 Connected to chain ID:", _network.chainId);
+  // Initialize Web3 when user is authenticated and has wallet
+  useEffect(() => {
+    const initializeWeb3 = async () => {
+      if (!ready || !authenticated || wallets.length === 0) return;
 
-      setLoadingMessage("Loading smart contracts...");
-      const _ticket = new ethers.Contract(Ticket.address, Ticket.abi, _signer);
-      const _event = new ethers.Contract(EventManager.address, EventManager.abi, _signer);
-      const _marketplace = new ethers.Contract(Marketplace.address, Marketplace.abi, _signer);
+      try {
+        setIsConnecting(true);
+        setLoadingMessage("Setting up wallet...");
 
-      setProvider(_provider);
-      setSigner(_signer);
-      setAddress(_address);
-      setNetwork(_network);
-      setTicketContract(_ticket);
-      setEventContract(_event);
-      setMarketplaceContract(_marketplace);
+        const wallet = wallets[0]; // Get first wallet
+        const ethereumProvider = await wallet.getEthereumProvider();
+        const ethersProvider = new ethers.providers.Web3Provider(
+          ethereumProvider
+        );
 
-      // Load saved user role from localStorage
-      // We'll still use localStorage for the role since it's just a UI preference
-      const savedRole = localStorage.getItem(`mosh-role-${_address}`);
-      
-      if (savedRole) {
-        setRole(savedRole);
-        
-        // If they're an artist, try to fetch their profile from their most recent event
-        if (savedRole === "musician") {
+        // Check current network
+        const currentNetwork = await ethersProvider.getNetwork();
+        console.log("Current network:", currentNetwork);
+
+        // Check if we're on Moonbase Alpha (chainId: 1287)
+        if (currentNetwork.chainId !== 1287) {
+          console.log("Wrong network, switching to Moonbase Alpha...");
           try {
-            setLoadingMessage("Loading artist profile...");
-            const profile = await fetchArtistProfile(_address, _event);
-            if (profile) {
-              setArtistName(profile.name);
-              setGoldRequirement(profile.goldRequirement);
+            await ethereumProvider.request({
+              method: "wallet_switchEthereumChain",
+              params: [{ chainId: "0x507" }], // Moonbase Alpha hex (1287)
+            });
+
+            // After successful switch, we'll continue with the same provider
+            // The network change will be reflected automatically
+          } catch (switchError) {
+            console.error("Failed to switch network:", switchError);
+
+            // If network doesn't exist, try to add it
+            if (switchError.code === 4902) {
+              try {
+                await ethereumProvider.request({
+                  method: "wallet_addEthereumChain",
+                  params: [
+                    {
+                      chainId: "0x507",
+                      chainName: "Moonbase Alpha",
+                      nativeCurrency: {
+                        name: "DEV",
+                        symbol: "DEV",
+                        decimals: 18,
+                      },
+                      rpcUrls: ["https://rpc.api.moonbase.moonbeam.network"],
+                      blockExplorerUrls: ["https://moonbase.moonscan.io/"],
+                    },
+                  ],
+                });
+              } catch (addError) {
+                console.error("Failed to add network:", addError);
+                toast.error("Please manually switch to Moonbase Alpha network");
+                return;
+              }
+            } else {
+              toast.error("Please switch to Moonbase Alpha network");
+              return;
             }
-          } catch (err) {
-            console.error("Failed to load artist profile:", err);
-            // If we can't load profile, prompt to create one
-            setShowArtistForm(true);
           }
         }
-      } else {
-        // Show role selector instead of toast
-        setTempUserAddress(_address);
-        setShowRoleSelector(true);
+
+        const ethersSigner = ethersProvider.getSigner();
+        const _address = await ethersSigner.getAddress();
+        const _network = await ethersProvider.getNetwork();
+
+        // DEBUG: Log network and contract info
+        console.log("=== DEBUG INFO ===");
+        console.log("Connected to network:", _network.chainId, _network.name);
+        console.log("EventManager address:", EventManager.address);
+        console.log("Ticket address:", Ticket.address);
+        console.log("Marketplace address:", Marketplace.address);
+        console.log("User address:", _address);
+
+        // Try to check if contract exists
+        try {
+          const code = await ethersProvider.getCode(EventManager.address);
+          console.log("Contract code exists:", code !== "0x");
+          if (code === "0x") {
+            console.log(
+              "⚠️ Contract not found at",
+              EventManager.address,
+              "on network",
+              _network.chainId
+            );
+          }
+        } catch (err) {
+          console.log("Failed to get contract code:", err.message);
+        }
+
+        const _ticket = new ethers.Contract(
+          Ticket.address,
+          Ticket.abi,
+          ethersSigner
+        );
+        const _event = new ethers.Contract(
+          EventManager.address,
+          EventManager.abi,
+          ethersSigner
+        );
+        const _marketplace = new ethers.Contract(
+          Marketplace.address,
+          Marketplace.abi,
+          ethersSigner
+        );
+
+        setProvider(ethersProvider);
+        setSigner(ethersSigner);
+        setAddress(_address);
+        setNetwork(_network);
+        setTicketContract(_ticket);
+        setEventContract(_event);
+        setMarketplaceContract(_marketplace);
+
+        // Check for existing role
+        const savedRole = localStorage.getItem(`mosh-role-${_address}`);
+        if (savedRole) {
+          setRole(savedRole);
+          if (savedRole === "musician") {
+            try {
+              setLoadingMessage("Loading artist profile...");
+              const profile = await fetchArtistProfile(_address, _event);
+              if (profile) {
+                setArtistName(profile.name);
+                setGoldRequirement(profile.goldRequirement);
+              }
+            } catch (err) {
+              console.error("Failed to load artist profile:", err);
+              setShowArtistForm(true);
+            }
+          }
+        } else {
+          setTempUserAddress(_address);
+          setShowRoleSelector(true);
+        }
+      } catch (error) {
+        console.error("Web3 initialization failed:", error);
+        toast.error("Failed to initialize wallet");
+      } finally {
+        setIsConnecting(false);
+        setLoadingMessage("");
       }
+    };
+
+    initializeWeb3();
+  }, [ready, authenticated, wallets]);
+
+  const connectWallet = async () => {
+    try {
+      setIsConnecting(true);
+      setLoadingMessage("Connecting...");
+      await login();
     } catch (error) {
-      console.error("Connection failed:", error);
-      toast.error("Failed to connect wallet");
+      console.error("Login failed:", error);
+      toast.error("Failed to connect");
     } finally {
       setIsConnecting(false);
       setLoadingMessage("");
     }
   };
 
-  // Fetch artist profile from their most recent event or from cache
-  const fetchArtistProfile = async (artistAddress, eventContract) => {
-    // Check cache first
-    if (artistProfiles[artistAddress]) {
-      return artistProfiles[artistAddress];
+  const disconnectWallet = async () => {
+    try {
+      await logout();
+      // Clear all state
+      setProvider(null);
+      setSigner(null);
+      setAddress(null);
+      setNetwork(null);
+      setTicketContract(null);
+      setEventContract(null);
+      setMarketplaceContract(null);
+      setRole(null);
+      setArtistName(null);
+      setGoldRequirement(0);
+      setShowRoleSelector(false);
+      setShowArtistForm(false);
+    } catch (error) {
+      console.error("Logout failed:", error);
     }
+  };
+
+  const fetchArtistProfile = async (artistAddress, eventContract) => {
+    if (artistProfiles[artistAddress]) return artistProfiles[artistAddress];
 
     try {
-      // Get total events
       const totalEvents = await eventContract.nextEventId();
-      
-      // Loop through events to find one by this artist
+
       for (let i = totalEvents - 1; i >= 0; i--) {
         const event = await eventContract.events(i);
-        
-        // If this is an event by the artist
         if (event.organizer.toLowerCase() === artistAddress.toLowerCase()) {
-          // Get the metadata from IPFS
-          const metadataURI = event.metadataURI.replace("ipfs://", "https://ipfs.io/ipfs/");
-          const response = await axios.get(metadataURI);
-          
-          // Find the Artist attribute
-          const artistAttr = response.data.attributes.find(attr => 
-            attr.trait_type === "Artist Name"
+          const metadataURI = event.metadataURI.replace(
+            "ipfs://",
+            "https://ipfs.io/ipfs/"
           );
-          
+          const response = await axios.get(metadataURI);
+
+          const artistAttr = response.data.attributes.find(
+            (attr) => attr.trait_type === "Artist Name"
+          );
+
           if (artistAttr) {
             const profile = {
               name: artistAttr.value,
-              goldRequirement: event.goldRequirement.toNumber()
+              goldRequirement: event.goldRequirement.toNumber(),
             };
-            
-            // Cache the result
-            setArtistProfiles(prev => ({
+            setArtistProfiles((prev) => ({
               ...prev,
-              [artistAddress]: profile
+              [artistAddress]: profile,
             }));
-            
             return profile;
           }
         }
@@ -150,14 +257,12 @@ export const Web3Provider = ({ children }) => {
     } catch (err) {
       console.error("Error fetching artist profile:", err);
     }
-    
+
     return null;
   };
-  
-  // Function to get artist name by address (for any component that needs it)
+
   const getArtistName = async (artistAddress) => {
     if (!artistAddress || !eventContract) return "Unknown Artist";
-    
     try {
       const profile = await fetchArtistProfile(artistAddress, eventContract);
       return profile?.name || "Unknown Artist";
@@ -167,52 +272,17 @@ export const Web3Provider = ({ children }) => {
     }
   };
 
-  const disconnectWallet = () => {
-    setProvider(null);
-    setSigner(null);
-    setAddress(null);
-    setTicketContract(null);
-    setEventContract(null);
-    setMarketplaceContract(null);
-    setNetwork(null);
-    setRole(null);
-    setArtistName(null);
-    setGoldRequirement(0); // Reset to default
-    
-    // Force redirect to home page
-    window.location.href = "/";
-  };
-
-  const handleSelectFan = () => {
-    if (tempUserAddress) {
-      setRole('fan');
-      localStorage.setItem(`mosh-role-${tempUserAddress}`, 'fan');
-      setShowRoleSelector(false);
-    }
-  };
-
-  const handleSelectArtist = () => {
-    if (tempUserAddress) {
-      setShowRoleSelector(false);
-      // Show the artist registration form
-      setShowArtistForm(true);
-    }
-  };
-
-  // Upload artist profile to IPFS
   const uploadArtistProfile = async (name, goldReq) => {
     if (!address) return null;
-    
+
     try {
-      // Create artist profile JSON
       const artistProfile = {
-        name: name,
+        name,
         goldRequirement: goldReq,
-        address: address,
-        createdAt: new Date().toISOString()
+        address,
+        createdAt: new Date().toISOString(),
       };
-      
-      // Upload to IPFS via Pinata
+
       const response = await axios.post(
         "https://api.pinata.cloud/pinning/pinJSONToIPFS",
         artistProfile,
@@ -223,122 +293,104 @@ export const Web3Provider = ({ children }) => {
           },
         }
       );
-      
+
       return `ipfs://${response.data.IpfsHash}`;
     } catch (err) {
-      console.error("Failed to upload artist profile:", err);
+      console.error("IPFS upload failed:", err);
       return null;
     }
   };
 
   const completeArtistRegistration = async (name, goldReq) => {
     if (!address || !eventContract) return;
-    
     try {
       setIsLoading(true);
-      setLoadingMessage("Registering as an artist...");
-      
-      // First register as musician on the contract
+      setLoadingMessage("Registering artist...");
       const tx = await eventContract.registerAsMusician();
-      
-      setLoadingMessage("Confirming transaction...");
       await tx.wait();
-      
-      // Save artist profile info locally for this session
+
       setArtistName(name);
       setGoldRequirement(goldReq);
       setRole("musician");
-      
-      // Store role in localStorage (just for UI purposes)
       localStorage.setItem(`mosh-role-${address}`, "musician");
-      
-      // Store gold requirement in localStorage to persist across sessions
       localStorage.setItem(`mosh-gold-req-${address}`, goldReq.toString());
-      
-      // Cache the profile
-      setArtistProfiles(prev => ({
+
+      setArtistProfiles((prev) => ({
         ...prev,
-        [address]: { name, goldRequirement: goldReq }
+        [address]: { name, goldRequirement: goldReq },
       }));
-      
-      // Hide the form
+
       setShowArtistForm(false);
-      
       toast.success(`Welcome, ${name}!`);
     } catch (err) {
-      console.error("Artist registration failed:", err);
-      toast.error("Registration failed. Please try again.");
+      console.error("Registration failed:", err);
+      toast.error("Registration failed.");
     } finally {
       setIsLoading(false);
       setLoadingMessage("");
     }
   };
 
-  // Update gold requirement in user profile and cache
   const updateGoldRequirement = (value) => {
     setGoldRequirement(value);
-    
-    // Update cache so future events can access the latest requirement
     if (address && artistName) {
-      setArtistProfiles(prev => ({
+      setArtistProfiles((prev) => ({
         ...prev,
-        [address]: { 
-          ...prev[address],
-          goldRequirement: value 
-        }
+        [address]: { ...prev[address], goldRequirement: value },
       }));
-      
-      // Store in localStorage to persist across sessions
       localStorage.setItem(`mosh-gold-req-${address}`, value.toString());
     }
   };
 
-  useEffect(() => {
-    if (window.ethereum && window.ethereum.selectedAddress) {
-      connectWallet();
+  const handleSelectFan = () => {
+    if (tempUserAddress) {
+      setRole("fan");
+      localStorage.setItem(`mosh-role-${tempUserAddress}`, "fan");
+      setShowRoleSelector(false);
     }
-  }, []);
+  };
 
-  // Load gold requirement from localStorage on initial load
+  const handleSelectArtist = () => {
+    if (tempUserAddress) {
+      setShowRoleSelector(false);
+      setShowArtistForm(true);
+    }
+  };
+
+  // Load saved gold requirement
   useEffect(() => {
     if (address && role === "musician") {
-      const savedGoldReq = localStorage.getItem(`mosh-gold-req-${address}`);
-      if (savedGoldReq) {
-        const parsedReq = parseInt(savedGoldReq);
-        if (!isNaN(parsedReq)) {
-          setGoldRequirement(parsedReq);
-          
-          // Update cache
-          if (artistName) {
-            setArtistProfiles(prev => ({
-              ...prev,
-              [address]: { 
-                ...prev[address],
-                goldRequirement: parsedReq 
-              }
-            }));
-          }
+      const saved = localStorage.getItem(`mosh-gold-req-${address}`);
+      const parsed = parseInt(saved);
+      if (!isNaN(parsed)) {
+        setGoldRequirement(parsed);
+        if (artistName) {
+          setArtistProfiles((prev) => ({
+            ...prev,
+            [address]: {
+              ...prev[address],
+              goldRequirement: parsed,
+            },
+          }));
         }
       }
     }
   }, [address, role, artistName]);
 
-  // Show global loading overlay for connecting/loading states
-  if (isConnecting || isLoading) {
-    return <LoadingSpinner fullscreen={true} text={loadingMessage} />;
+  // Show loading while Privy initializes
+  if (!ready || isConnecting || isLoading) {
+    return <LoadingSpinner fullscreen text={loadingMessage || "Loading..."} />;
   }
 
-  // If role selector needs to be displayed, render it as a modal overlay
   if (showRoleSelector) {
     return (
-      <RoleSelector 
-        onSelectFan={handleSelectFan} 
-        onSelectArtist={handleSelectArtist} 
+      <RoleSelector
+        onSelectFan={handleSelectFan}
+        onSelectArtist={handleSelectArtist}
       />
     );
   }
 
-  // If artist form needs to be displayed, render it as a modal overlay
   if (showArtistForm) {
     return (
       <div className="artist-form-overlay">
@@ -359,7 +411,7 @@ export const Web3Provider = ({ children }) => {
         ticketContract,
         eventContract,
         marketplaceContract,
-        isConnected: !!signer,
+        isConnected: authenticated && !!signer,
         role,
         artistName,
         goldRequirement,
@@ -367,6 +419,7 @@ export const Web3Provider = ({ children }) => {
         getArtistName,
         fetchArtistProfile,
         isConnecting,
+        user, // Privy user info (email, etc.)
       }}
     >
       {children}
